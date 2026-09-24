@@ -1,5 +1,5 @@
 import { type NextRequest } from "next/server";
-import { created, ok, parseBody, parseJsonBody, parseQuery, withErrorHandling } from "@/lib/api/respond";
+import { created, methodNotAllowed, ok, parseBody, parseJsonBody, parseQuery, withErrorHandling } from "@/lib/api/respond";
 import { createRequest, listRequests } from "@/lib/services/requests";
 import { createRequestSchema, listQuerySchema } from "@/lib/validation/schemas";
 
@@ -17,3 +17,7 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
   const data = await createRequest(input);
   return created(data, `/api/requests/${data.reference}`);
 });
+
+export const PUT = methodNotAllowed;
+export const PATCH = methodNotAllowed;
+export const DELETE = methodNotAllowed;
