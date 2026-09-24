@@ -1,6 +1,6 @@
 import { type NextRequest } from "next/server";
-import { ok, parseBody, parseJsonBody, withErrorHandling } from "@/lib/api/respond";
-import { getRequestDetail, updateRequest } from "@/lib/services/requests";
+import { methodNotAllowed, noContent, ok, parseBody, parseJsonBody, withErrorHandling } from "@/lib/api/respond";
+import { getRequestDetail, removeRequest, updateRequest } from "@/lib/services/requests";
 import { updateRequestSchema } from "@/lib/validation/schemas";
 
 export const dynamic = "force-dynamic";
@@ -26,3 +26,14 @@ export const PATCH = withErrorHandling(
     return ok(data);
   }
 );
+
+export const DELETE = withErrorHandling(
+  async (_req: NextRequest, { params }: RouteParams) => {
+    const { reference } = await params;
+    await removeRequest(reference);
+    return noContent();
+  }
+);
+
+export const POST = methodNotAllowed;
+export const PUT = methodNotAllowed;
