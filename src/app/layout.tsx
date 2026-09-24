@@ -1,26 +1,41 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { IBM_Plex_Sans, Outfit } from "next/font/google";
 import "./globals.css";
+import { TopBar } from "@/components/ui/TopBar";
+import { ToastProvider } from "@/components/ui/Toast";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const plexSans = IBM_Plex_Sans({
   subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  variable: "--font-plex",
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const outfit = Outfit({
   subsets: ["latin"],
+  weight: ["500", "600"],
+  variable: "--font-outfit",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
   title: "ReturnDesk",
-  description: "Returns desk for handling customer return and replacement requests",
+  description: "Frido return & exchange desk",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
-      <body className="min-h-screen font-sans">{children}</body>
+    <html lang="en" className={`${plexSans.variable} ${outfit.variable}`}>
+      <body className="min-h-screen bg-canvas text-ink font-sans antialiased">
+        <ToastProvider>
+          <TopBar />
+          {children}
+        </ToastProvider>
+      </body>
     </html>
   );
 }

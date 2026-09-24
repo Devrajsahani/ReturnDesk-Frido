@@ -22,6 +22,23 @@ This document maps every source file in `ReturnDesk/` to its architectural respo
 | `src/app/api/requests/[reference]/transitions/route.ts` | HTTP route handler for `POST` (lifecycle status changes), with 405 guards. | `POST`, `GET`, `PUT`, `PATCH`, `DELETE` | `return_requests` | 1, 2 |
 | `src/app/api/requests/[reference]/notes/route.ts` | HTTP route handler for `GET` (list notes) and `POST` (append note), with 405 guards. | `GET`, `POST`, `PUT`, `PATCH`, `DELETE` | `request_notes` | Notes timeline |
 | `src/app/api/[...slug]/route.ts` | Catch-all route handler returning JSON 404 for unrecognized API endpoints. | `GET`, `POST`, `PUT`, `PATCH`, `DELETE`, `HEAD`, `OPTIONS` | none | — |
+| `src/lib/api/client.ts` | Typed frontend HTTP fetch client returning typed `ApiClientError` with transparent `AbortError` pass-through. | `apiFetch`, `ApiClientError` | none | Client API layer |
+| `src/hooks/useDebouncedValue.ts` | Generic value debounce React hook (default 300ms) for search and filter inputs. | `useDebouncedValue` | none | Search responsiveness |
+| `src/components/ui/TopBar.tsx` | Global top navigation bar with wordmark, brand accent, and "New request" button. | `TopBar` | none | Navigation |
+| `src/components/ui/ReferenceTag.tsx` | Stylized reference identifier badge in Frido yellow (`bg-label`) with tabular numerals (default & lg). | `ReferenceTag` | none | Visual identity |
+| `src/components/ui/StatusBadge.tsx` | Accessible status pill with semantic colored square and text label for all request lifecycle states. | `StatusBadge` | none | State visibility |
+| `src/components/ui/Button.tsx` | Tier 2 pressable button supporting primary, secondary, danger, ghost variants and loading spinner. | `Button` | none | Actions |
+| `src/components/ui/Input.tsx` | Controlled text input with label, description hint, error message, and focus rings. | `Input` | none | Form entry |
+| `src/components/ui/Textarea.tsx` | Multi-line text area with label, hint, error states, and accessible description links. | `Textarea` | none | Note/detail entry |
+| `src/components/ui/Select.tsx` | Native accessible `<select>` dropdown wrapped with custom chevron and design tokens. | `Select` | none | Sorting & choices |
+| `src/components/ui/ChoiceTile.tsx` | Tier 3 interactive tile for radio selections (resolutions & reasons) with keyboard arrow navigation. | `ChoiceTile`, `ChoiceTileGroup` | none | Choices & Resolutions |
+| `src/components/ui/FilterChip.tsx` | Tier 2 pressable filter chip with count badge and `aria-pressed` state reflection. | `FilterChip` | none | Filtering |
+| `src/components/ui/Banner.tsx` | Prominent inline alert banner (danger, warning, success) with 4px left bar and optional action. | `Banner` | none | Inline errors/notices |
+| `src/components/ui/Toast.tsx` | Ephemeral toast notification system (provider + hook), single toast at a time with 4s auto-dismiss. | `ToastProvider`, `useToast` | none | Action feedback |
+| `src/components/ui/Dialog.tsx` | Accessible modal dialog with 40% ink backdrop, `shadow-dialog`, focus trap, and Escape dismissal. | `Dialog` | none | Confirmation / Approve |
+| `src/components/ui/EmptyState.tsx` | Box container with plain sentence and secondary action button for empty filter/search results. | `EmptyState` | none | Empty view handling |
+| `src/components/ui/Skeleton.tsx` | Skeleton loading placeholder blocks in `bg-hover` with 1.4s opacity pulse (disabled on reduced motion). | `Skeleton` | none | Loading states |
+| `src/components/ui/Spinner.tsx` | 14px ring spinner with quarter-fill in ink; only allowed `rounded-full` component in design system. | `Spinner` | none | Busy states |
 | `db/migrate.ts` | Migration runner executing numbered `.sql` migration files in transactions. | Runner script | `schema_migrations` | Schema integrity |
 | `db/seed.ts` | Deterministic database seeder generating 36 sample requests (100% status × reason combinations). | Seeder script | `return_requests`, `request_notes` | 1–5 |
 
