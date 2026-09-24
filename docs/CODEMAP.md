@@ -39,6 +39,13 @@ This document maps every source file in `ReturnDesk/` to its architectural respo
 | `src/components/ui/EmptyState.tsx` | Box container with plain sentence and secondary action button for empty filter/search results. | `EmptyState` | none | Empty view handling |
 | `src/components/ui/Skeleton.tsx` | Skeleton loading placeholder blocks in `bg-hover` with 1.4s opacity pulse (disabled on reduced motion). | `Skeleton` | none | Loading states |
 | `src/components/ui/Spinner.tsx` | 14px ring spinner with quarter-fill in ink; only allowed `rounded-full` component in design system. | `Spinner` | none | Busy states |
+| `src/lib/format.ts` | Human-friendly date and currency formatters (`formatShortDate`, `formatCurrency`). | `formatShortDate`, `formatCurrency` | none | UI presentation |
+| `src/components/desk/DeskTable.tsx` | Main returns desk desktop table (≥ 640px) with Tier 1 hover ink bar and row-link navigation. | `DeskTable` | none | Desk table view |
+| `src/components/desk/DeskCard.tsx` | Mobile request card (Tier 3 tile) (< 640px) with tactile hover lift and tap press. | `DeskCard` | none | Mobile desk view |
+| `src/components/desk/DeskFilters.tsx` | Search input, sort dropdown, status and reason filter chips, with mobile collapsible disclosure. | `DeskFilters` | none | Filter & search |
+| `src/components/desk/DeskPagination.tsx` | Accessible pagination footer with "Showing X-Y of Z" counters and previous/next controls. | `DeskPagination` | none | Pagination |
+| `src/components/desk/DeskSkeleton.tsx` | Responsive loading skeleton with animated placeholders for desktop table rows and mobile cards. | `DeskSkeleton` | none | Loading states |
+| `src/app/page.tsx` | The Desk page: URL search params as single source of truth, 300ms debounce, AbortController, error banner. | `DeskPage` | none | Main application view |
 | `db/migrate.ts` | Migration runner executing numbered `.sql` migration files in transactions. | Runner script | `schema_migrations` | Schema integrity |
 | `db/seed.ts` | Deterministic database seeder generating 36 sample requests (100% status × reason combinations). | Seeder script | `return_requests`, `request_notes` | 1–5 |
 
