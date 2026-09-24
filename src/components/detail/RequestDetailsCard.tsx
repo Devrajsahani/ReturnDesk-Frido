@@ -1,7 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
-import { formatCurrency, formatDateTime } from "@/lib/format";
+import { formatCurrency, formatDateTime, formatShortDate } from "@/lib/format";
 import { REASON_LABELS, RESOLUTION_LABELS } from "@/lib/domain/constants";
 import type { ReturnRequestDetail } from "@/lib/domain/types";
 
@@ -22,12 +22,18 @@ export function RequestDetailsCard({ request, canEdit }: RequestDetailsCardProps
         <h2 className="font-display font-semibold text-base text-ink">
           Request details
         </h2>
-        {canEdit && (
+        {canEdit ? (
           <Link href={`/requests/${request.reference}/edit`}>
             <Button variant="secondary" size="sm">
               Edit details
             </Button>
           </Link>
+        ) : (
+          ["approved", "rejected", "completed"].includes(request.status) && (
+            <p className="text-xs text-graphite">
+              Details are locked because this request was {request.status} on {formatShortDate(request.decidedAt)}.
+            </p>
+          )
         )}
       </div>
 
