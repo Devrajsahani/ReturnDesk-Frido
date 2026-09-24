@@ -390,3 +390,97 @@ export async function updateRequestQuery(
   const res = await client.query<RequestRow>(sql, params);
   return mapRowToSummary(res.rows[0]);
 }
+
+export async function transitionRequestQuery(
+  id: number | string,
+  input: {
+    to: RequestStatus;
+    resolution?: RequestResolution;
+    refundAmount?: string;
+  },
+  client: PoolClient
+): Promise<ReturnRequestSummary> {
+  let sql: string;
+  let params: unknown[];
+
+  if (input.to === "approved") {
+    sql = `
+      UPDATE return_requests
+      SET
+        status = 'approved',
+        resolution = $2,
+        refund_amount = $3,
+        decided_at = now(),
+        updated_at = now()
+      WHERE id = $1
+      RETURNING
+        id, reference, customer_name, customer_email, customer_phone,
+        order_number, item_sku, item_name, quantity, reason, status,
+        resolution, refund_amount, created_at, updated_at, decided_at
+    `;
+    params = [id, input.resolution, input.refundAmount ?? null];
+  } else if (input.to === "rejected") {
+    sql = `
+      UPDATE return_requests
+      SET
+        status = 'rejected',
+        resolution = NULL,
+        refund_amount = NULL,
+        decided_at = now(),
+        updated_at = now()
+      WHERE id = $1
+      RETURNING
+        id, reference, customer_name, customer_email, customer_phone,
+        order_number, item_sku, item_name, quantity, reason, status,
+        resolution, refund_amount, created_at, updated_at, decided_at
+    `;
+    params = [id];
+  } else if (input.to === "in_review") {
+    sql = `
+      UPDATE return_requests
+      SET
+        status = 'in_review',
+        resolution = NULL,
+        refund_amount = NULL,
+        decided_at = NULL,
+        updated_at = now()
+      WHERE id = $1
+      RETURNING
+        id, reference, customer_name, customer_email, customer_phone,
+        order_number, item_sku, item_name, quantity, reason, status,
+        resolution, refund_amount, created_at, updated_at, decided_at
+    `;
+    params = [id];
+  } else {
+    // completed
+    sql = `
+      UPDATE return_requests
+      SET
+        status = 'completed',
+        updated_at = now()
+      WHERE id = $1
+      RETURNING
+        id, reference, customer_name, customer_email, customer_phone,
+        order_number, item_sku, item_name, quantity, reason, status,
+        resolution, refund_amount, created_at, updated_at, decided_at
+    `;
+    params = [id];
+  }
+
+  const res = await client.query<RequestRow>(sql, params);
+  return mapRowToSummary(res.rows[0]);
+}
+
+export async function softDeleteRequestQuery(
+  id: number | string,
+  client: PoolClient
+): Promise<void> {
+  const sql = `
+    UPDATE return_requests
+    SET
+      deleted_at = now(),
+      updated_at = now()
+    WHERE id = $1
+  `;
+  await client.query(sql, [id]);
+}

@@ -87,7 +87,7 @@ export const transitionSchema = z
   .object({
     to: z.enum(STATUSES),
     resolution: z.enum(RESOLUTIONS).optional(),
-    refundAmount: refundAmountSchema.optional(),
+    refundAmount: z.union([z.number(), z.string()]).optional(),
   })
   .strict();
 

@@ -1,8 +1,8 @@
 import "server-only";
 import { withTransaction } from "../db";
-import { allowedActions, isLocked, type AllowedActions } from "../domain/lifecycle";
+import { allowedActions, canTransition, isLocked, isRemovable, TRANSITIONS, type AllowedActions } from "../domain/lifecycle";
 import { ApiError } from "../api/errors";
-import { findNotesByRequestId, type NoteSummary } from "../queries/notes";
+import { findNotesByRequestId, insertNote, type NoteSummary } from "../queries/notes";
 import {
   createRequestQuery,
   findLiveRequestByOrderAndSku,
@@ -10,11 +10,13 @@ import {
   findRequestForUpdate,
   findRequests,
   mapRowToSummary,
+  softDeleteRequestQuery,
+  transitionRequestQuery,
   updateRequestQuery,
   type PaginationMeta,
   type ReturnRequestSummary,
 } from "../queries/requests";
-import type { CreateRequestInput, ListQueryInput, UpdateRequestInput } from "../validation/schemas";
+import type { CreateRequestInput, ListQueryInput, NoteInput, TransitionInput, UpdateRequestInput } from "../validation/schemas";
 
 export interface ReturnRequestDetail extends ReturnRequestSummary {
   notes: NoteSummary[];
@@ -145,4 +147,164 @@ export async function updateRequest(
       throw err;
     }
   });
+}
+
+function parseRefundAmount(val: unknown): string {
+  if (val === undefined || val === null || val === "") {
+    throw new ApiError(
+      422,
+      "RESOLUTION_REQUIRED",
+      "Refund amount is required for refund resolution",
+      { fields: { refundAmount: "Refund amount is required" } }
+    );
+  }
+
+  const str = typeof val === "number" ? val.toString() : String(val).trim();
+  if (!/^(\d+(\.\d{1,2})?|\.\d{1,2})$/.test(str)) {
+    throw new ApiError(
+      422,
+      "RESOLUTION_REQUIRED",
+      "Refund amount must be a positive number with at most 2 decimal places",
+      { fields: { refundAmount: "Invalid refund amount" } }
+    );
+  }
+
+  const num = Number(str);
+  if (num <= 0) {
+    throw new ApiError(
+      422,
+      "RESOLUTION_REQUIRED",
+      "Refund amount must be greater than 0",
+      { fields: { refundAmount: "Refund amount must be greater than 0" } }
+    );
+  }
+
+  return num.toFixed(2);
+}
+
+export async function transitionRequest(
+  reference: string,
+  input: TransitionInput
+): Promise<ReturnRequestSummary> {
+  const ref = reference.toUpperCase();
+
+  return await withTransaction(async (client) => {
+    // Step 1: 404 if not found or soft-deleted
+    const row = await findRequestForUpdate(ref, client);
+    if (!row) {
+      throw new ApiError(404, "NOT_FOUND", `Request '${ref}' not found`);
+    }
+
+    // Step 3: 409 if illegal transition from current status
+    if (!canTransition(row.status, input.to)) {
+      throw new ApiError(
+        409,
+        "INVALID_TRANSITION",
+        `Cannot transition request from '${row.status}' to '${input.to}'`,
+        {
+          from: row.status,
+          to: input.to,
+          allowed: TRANSITIONS[row.status],
+        }
+      );
+    }
+
+    // Step 4: 422 for resolution or amount rules
+    let formattedRefundAmount: string | undefined;
+
+    if (input.to === "approved") {
+      if (!input.resolution) {
+        throw new ApiError(
+          422,
+          "RESOLUTION_REQUIRED",
+          "A resolution is required when approving a return request",
+          { fields: { resolution: "Resolution is required" } }
+        );
+      }
+
+      if (input.resolution === "refund") {
+        formattedRefundAmount = parseRefundAmount(input.refundAmount);
+      } else {
+        // replacement or store_credit
+        if (input.refundAmount !== undefined && input.refundAmount !== null) {
+          throw new ApiError(
+            422,
+            "RESOLUTION_NOT_ALLOWED",
+            `Refund amount cannot be recorded for resolution '${input.resolution}'`,
+            { fields: { refundAmount: "Refund amount not allowed" } }
+          );
+        }
+      }
+    } else {
+      // not approved (in_review, rejected, completed)
+      if (input.resolution !== undefined && input.resolution !== null) {
+        throw new ApiError(
+          422,
+          "RESOLUTION_NOT_ALLOWED",
+          `Resolution cannot be set when transitioning to '${input.to}'`,
+          { fields: { resolution: "Resolution not allowed" } }
+        );
+      }
+      if (input.refundAmount !== undefined && input.refundAmount !== null) {
+        throw new ApiError(
+          422,
+          "RESOLUTION_NOT_ALLOWED",
+          `Refund amount cannot be recorded when transitioning to '${input.to}'`,
+          { fields: { refundAmount: "Refund amount not allowed" } }
+        );
+      }
+    }
+
+    return await transitionRequestQuery(
+      row.id,
+      {
+        to: input.to,
+        resolution: input.resolution,
+        refundAmount: formattedRefundAmount,
+      },
+      client
+    );
+  });
+}
+
+export async function removeRequest(reference: string): Promise<void> {
+  const ref = reference.toUpperCase();
+
+  await withTransaction(async (client) => {
+    const row = await findRequestForUpdate(ref, client);
+    if (!row) {
+      throw new ApiError(404, "NOT_FOUND", `Request '${ref}' not found`);
+    }
+
+    if (!isRemovable(row.status)) {
+      throw new ApiError(
+        409,
+        "REMOVAL_NOT_ALLOWED",
+        `Cannot remove request '${ref}' because its status is ${row.status}`
+      );
+    }
+
+    await softDeleteRequestQuery(row.id, client);
+  });
+}
+
+export async function getRequestNotes(reference: string): Promise<NoteSummary[]> {
+  const ref = reference.toUpperCase();
+  const row = await findRequestByReference(ref);
+  if (!row) {
+    throw new ApiError(404, "NOT_FOUND", `Request '${ref}' not found`);
+  }
+  return await findNotesByRequestId(row.id);
+}
+
+export async function addRequestNote(
+  reference: string,
+  input: NoteInput
+): Promise<NoteSummary> {
+  const ref = reference.toUpperCase();
+  const row = await findRequestByReference(ref);
+  if (!row) {
+    throw new ApiError(404, "NOT_FOUND", `Request '${ref}' not found`);
+  }
+  return await insertNote(row.id, input.author, input.body);
 }

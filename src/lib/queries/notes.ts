@@ -38,3 +38,27 @@ export async function findNotesByRequestId(
     createdAt: r.created_at.toISOString(),
   }));
 }
+
+export async function insertNote(
+  requestId: number | string,
+  author: string,
+  body: string,
+  client?: PoolClient
+): Promise<NoteSummary> {
+  const sql = `
+    INSERT INTO request_notes (request_id, author, body)
+    VALUES ($1, $2, $3)
+    RETURNING id, author, body, created_at
+  `;
+  const rows = client
+    ? (await client.query<NoteRow>(sql, [requestId, author, body])).rows
+    : await query<NoteRow>(sql, [requestId, author, body]);
+
+  const r = rows[0];
+  return {
+    id: String(r.id),
+    author: r.author,
+    body: r.body,
+    createdAt: r.created_at.toISOString(),
+  };
+}
