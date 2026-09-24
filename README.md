@@ -301,15 +301,15 @@ ReturnDesk implements a tactile, bespoke interface with three interaction tiers:
   - `DELETE /api/requests/:reference` with soft-removal restrictions.
   - `GET /api/requests/:reference/notes` & `POST /api/requests/:reference/notes`.
   - Comprehensive documentation in `docs/API.md`, `docs/DATABASE.md`, and `docs/CODEMAP.md`.
-- **Phase 3: Frontend Base, Desk & Detail (Steps 3.1–3.3)**
+- **Phase 3: Frontend Complete (Steps 3.1–3.5)**
   - Token system and utilities in `src/app/globals.css`.
   - 15 base UI components in `src/components/ui/` with 3 interaction tiers.
   - The Desk page (`/`): debounced search, status/reason filter chips, sort select, responsive table & mobile cards, pagination.
   - Request Detail page (`/requests/[reference]`): dynamic actions from `allowedActions`, LifecycleTrack, details card, notes timeline, Approve/Reject/Remove dialogs.
+  - Create & Edit forms (`/requests/new` and `/requests/[reference]/edit`): shared Zod validation, ChoiceTiles for return reasons, duplicate conflict banner with link, lock notices on decided requests.
+  - UI quality pass: 375px responsive layout verified with 0 horizontal scroll, full keyboard navigation (Tab, Arrow keys, Escape dialog dismiss), decorative elements hidden from screen readers (`aria-hidden`), and reduced-motion support.
 
 ### In Progress / Upcoming
-- **Step 3.4:** Create and Edit Forms (`/requests/new` and `/requests/[reference]/edit`) using shared Zod schemas.
-- **Step 3.5:** Final accessibility and quality sweep.
 - **Phase 4:** Production deployment to Vercel with Neon connection pooling.
 - **Phase 5:** Vitest integration test suite, GitHub Actions CI workflow, and query performance benchmarks.
 
@@ -328,5 +328,5 @@ ReturnDesk implements a tactile, bespoke interface with three interaction tiers:
 
 - **Architecture, Schema & Lifecycle (Phase 1):** ~3 hours
 - **Core API & Business Rule Verification (Phase 2):** ~4 hours
-- **Design Tokens, Desk & Detail Implementation (Phase 3 in progress):** ~5 hours
-- **Total Hours Spent So Far:** ~12 hours
+- **Design System, Desk, Detail, Forms & Quality Pass (Phase 3):** ~6 hours
+- **Total Hours Spent So Far:** ~13 hours
