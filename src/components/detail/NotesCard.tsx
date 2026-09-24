@@ -63,7 +63,7 @@ export function NotesCard({ reference, notes, onNoteAdded }: NotesCardProps) {
       }
 
       setBody("");
-      showToast(`Added note to ${reference}`, "success");
+      showToast("Note added", "success");
       onNoteAdded();
     } catch (err: unknown) {
       if (err instanceof ApiClientError) {

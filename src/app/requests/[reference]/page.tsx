@@ -100,7 +100,7 @@ export default function RequestDetailPage({
       });
 
       if (toStatus === "in_review") {
-        showToast(`Started review for ${reference}`, "success");
+        showToast(`Review started on ${reference}`, "success");
       } else {
         showToast(`Completed ${reference}`, "success");
       }

@@ -86,6 +86,18 @@ function DeskContent() {
     }
   }, [debouncedSearch, urlQ, searchParams, router]);
 
+  // Handle ?removed=RD-XXXXX confirmation toast
+  const removedRef = searchParams.get("removed");
+  useEffect(() => {
+    if (removedRef) {
+      showToast(`${removedRef} was removed from the desk.`, "success");
+      const nextParams = new URLSearchParams(searchParams.toString());
+      nextParams.delete("removed");
+      const nextUrl = nextParams.toString() ? `/?${nextParams.toString()}` : "/";
+      router.replace(nextUrl, { scroll: false });
+    }
+  }, [removedRef, searchParams, router, showToast]);
+
   // Parse arrays from comma-separated URL params
   const selectedStatuses = urlStatus ? urlStatus.split(",").filter(Boolean) : [];
   const selectedReasons = urlReason ? urlReason.split(",").filter(Boolean) : [];

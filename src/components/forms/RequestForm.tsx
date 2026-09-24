@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { Banner } from "@/components/ui/Banner";
+import { useToast } from "@/components/ui/Toast";
 import { ChoiceTile, ChoiceTileGroup } from "@/components/ui/ChoiceTile";
 import { createRequestSchema, updateRequestSchema } from "@/lib/validation/schemas";
 import type { ReturnReason } from "@/lib/domain/constants";
@@ -65,6 +66,7 @@ export function RequestForm({
   initialValues,
 }: RequestFormProps) {
   const router = useRouter();
+  const { showToast } = useToast();
 
   const [customerName, setCustomerName] = useState(
     initialValues?.customerName ?? ""
@@ -176,6 +178,7 @@ export function RequestForm({
         const newRef = data.data?.reference;
         router.push(`/requests/${newRef}`);
       } else {
+        showToast("Changes saved", "success");
         router.push(`/requests/${reference}`);
       }
     } catch {
