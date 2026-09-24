@@ -1,9 +1,11 @@
 import "server-only";
+import { type PoolClient } from "pg";
 import { query } from "../db";
 import type { RequestResolution, RequestStatus, ReturnReason } from "../domain/constants";
-import type { ListQueryInput, SortField } from "../validation/schemas";
+import type { CreateRequestInput, ListQueryInput, SortField, UpdateRequestInput } from "../validation/schemas";
 
 export interface RequestRow {
+  id: number | string;
   reference: string;
   customer_name: string;
   customer_email: string;
@@ -99,7 +101,7 @@ export function buildWhereClause(filters: RequestFilterParams): {
   };
 }
 
-function mapRowToSummary(row: RequestRow): ReturnRequestSummary {
+export function mapRowToSummary(row: RequestRow): ReturnRequestSummary {
   return {
     reference: row.reference,
     customerName: row.customer_name,
@@ -145,6 +147,7 @@ export async function findRequests(
 
   const pageSql = `
     SELECT
+      id,
       reference,
       customer_name,
       customer_email,
@@ -178,4 +181,212 @@ export async function findRequests(
       totalPages,
     },
   };
+}
+
+export async function createRequestQuery(
+  input: CreateRequestInput,
+  client?: PoolClient
+): Promise<ReturnRequestSummary> {
+  const sql = `
+    INSERT INTO return_requests (
+      customer_name,
+      customer_email,
+      customer_phone,
+      order_number,
+      item_sku,
+      item_name,
+      quantity,
+      reason,
+      status
+    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'open')
+    RETURNING
+      id,
+      reference,
+      customer_name,
+      customer_email,
+      customer_phone,
+      order_number,
+      item_sku,
+      item_name,
+      quantity,
+      reason,
+      status,
+      resolution,
+      refund_amount,
+      created_at,
+      updated_at,
+      decided_at
+  `;
+
+  const params = [
+    input.customerName,
+    input.customerEmail,
+    input.customerPhone ?? null,
+    input.orderNumber,
+    input.itemSku,
+    input.itemName,
+    input.quantity,
+    input.reason,
+  ];
+
+  const rows = client
+    ? (await client.query<RequestRow>(sql, params)).rows
+    : await query<RequestRow>(sql, params);
+
+  return mapRowToSummary(rows[0]);
+}
+
+export async function findRequestByReference(
+  reference: string,
+  client?: PoolClient
+): Promise<RequestRow | null> {
+  const sql = `
+    SELECT
+      id,
+      reference,
+      customer_name,
+      customer_email,
+      customer_phone,
+      order_number,
+      item_sku,
+      item_name,
+      quantity,
+      reason,
+      status,
+      resolution,
+      refund_amount,
+      created_at,
+      updated_at,
+      decided_at
+    FROM return_requests
+    WHERE reference = $1 AND deleted_at IS NULL
+  `;
+
+  const rows = client
+    ? (await client.query<RequestRow>(sql, [reference])).rows
+    : await query<RequestRow>(sql, [reference]);
+
+  return rows[0] ?? null;
+}
+
+export async function findRequestForUpdate(
+  reference: string,
+  client: PoolClient
+): Promise<RequestRow | null> {
+  const sql = `
+    SELECT
+      id,
+      reference,
+      customer_name,
+      customer_email,
+      customer_phone,
+      order_number,
+      item_sku,
+      item_name,
+      quantity,
+      reason,
+      status,
+      resolution,
+      refund_amount,
+      created_at,
+      updated_at,
+      decided_at
+    FROM return_requests
+    WHERE reference = $1 AND deleted_at IS NULL
+    FOR UPDATE
+  `;
+
+  const rows = await client.query<RequestRow>(sql, [reference]);
+  return rows.rows[0] ?? null;
+}
+
+export async function findLiveRequestByOrderAndSku(
+  orderNumber: string,
+  itemSku: string,
+  client?: PoolClient
+): Promise<{ reference: string } | null> {
+  const sql = `
+    SELECT reference
+    FROM return_requests
+    WHERE lower(order_number) = lower($1)
+      AND lower(item_sku) = lower($2)
+      AND status IN ('open', 'in_review', 'approved')
+      AND deleted_at IS NULL
+    LIMIT 1
+  `;
+
+  const rows = client
+    ? (await client.query<{ reference: string }>(sql, [orderNumber, itemSku])).rows
+    : await query<{ reference: string }>(sql, [orderNumber, itemSku]);
+
+  return rows[0] ?? null;
+}
+
+export async function updateRequestQuery(
+  id: number | string,
+  updates: UpdateRequestInput,
+  client: PoolClient
+): Promise<ReturnRequestSummary> {
+  const sets: string[] = ["updated_at = now()"];
+  const params: unknown[] = [id];
+  let idx = 2;
+
+  if (updates.customerName !== undefined) {
+    sets.push(`customer_name = $${idx++}`);
+    params.push(updates.customerName);
+  }
+  if (updates.customerEmail !== undefined) {
+    sets.push(`customer_email = $${idx++}`);
+    params.push(updates.customerEmail);
+  }
+  if (updates.customerPhone !== undefined) {
+    sets.push(`customer_phone = $${idx++}`);
+    params.push(updates.customerPhone);
+  }
+  if (updates.orderNumber !== undefined) {
+    sets.push(`order_number = $${idx++}`);
+    params.push(updates.orderNumber);
+  }
+  if (updates.itemSku !== undefined) {
+    sets.push(`item_sku = $${idx++}`);
+    params.push(updates.itemSku);
+  }
+  if (updates.itemName !== undefined) {
+    sets.push(`item_name = $${idx++}`);
+    params.push(updates.itemName);
+  }
+  if (updates.quantity !== undefined) {
+    sets.push(`quantity = $${idx++}`);
+    params.push(updates.quantity);
+  }
+  if (updates.reason !== undefined) {
+    sets.push(`reason = $${idx++}`);
+    params.push(updates.reason);
+  }
+
+  const sql = `
+    UPDATE return_requests
+    SET ${sets.join(", ")}
+    WHERE id = $1
+    RETURNING
+      id,
+      reference,
+      customer_name,
+      customer_email,
+      customer_phone,
+      order_number,
+      item_sku,
+      item_name,
+      quantity,
+      reason,
+      status,
+      resolution,
+      refund_amount,
+      created_at,
+      updated_at,
+      decided_at
+  `;
+
+  const res = await client.query<RequestRow>(sql, params);
+  return mapRowToSummary(res.rows[0]);
 }
