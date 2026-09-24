@@ -46,6 +46,14 @@ This document maps every source file in `ReturnDesk/` to its architectural respo
 | `src/components/desk/DeskPagination.tsx` | Accessible pagination footer with "Showing X-Y of Z" counters and previous/next controls. | `DeskPagination` | none | Pagination |
 | `src/components/desk/DeskSkeleton.tsx` | Responsive loading skeleton with animated placeholders for desktop table rows and mobile cards. | `DeskSkeleton` | none | Loading states |
 | `src/app/page.tsx` | The Desk page: URL search params as single source of truth, 300ms debounce, AbortController, error banner. | `DeskPage` | none | Main application view |
+| `src/lib/domain/types.ts` | Shared TypeScript domain types for client and server (`ReturnRequestDetail`, `NoteSummary`). | `ReturnRequestDetail`, `NoteSummary`, `ReturnRequestSummary` | none | Shared types |
+| `src/components/detail/LifecycleTrack.tsx` | Visual 4-state lifecycle track with branching rejected step and responsive layout. | `LifecycleTrack` | none | Lifecycle visibility |
+| `src/components/detail/RequestDetailsCard.tsx` | Left column card displaying customer, order, item, reason, resolution, and edit action. | `RequestDetailsCard` | none | Request inspection |
+| `src/components/detail/NotesCard.tsx` | Right column timeline displaying chronological notes and add-note form with localStorage author memory. | `NotesCard` | none | Notes timeline |
+| `src/components/detail/ApproveDialog.tsx` | Approve transition dialog with resolution ChoiceTiles, refund input, and inline error banner. | `ApproveDialog` | none | Approve workflow |
+| `src/components/detail/RejectDialog.tsx` | Reject confirmation modal dialog for moving requests to terminal rejected state. | `RejectDialog` | none | Reject workflow |
+| `src/components/detail/RemoveDialog.tsx` | Soft-delete confirmation modal dialog with redirect to `/?removed=REF`. | `RemoveDialog` | none | Removal workflow |
+| `src/app/requests/[reference]/page.tsx` | Request detail page rendering allowed actions, lifecycle track, details card, notes, and 404 state. | `RequestDetailPage` | none | Detail page view |
 | `db/migrate.ts` | Migration runner executing numbered `.sql` migration files in transactions. | Runner script | `schema_migrations` | Schema integrity |
 | `db/seed.ts` | Deterministic database seeder generating 36 sample requests (100% status × reason combinations). | Seeder script | `return_requests`, `request_notes` | 1–5 |
 
