@@ -17,10 +17,12 @@ interface RouteParams {
 
 export const POST = withErrorHandling(async (req: NextRequest, { params }: RouteParams) => {
   const { reference } = await params;
+  const ifMatch = req.headers.get("if-match") ?? undefined;
   const body = await parseJsonBody(req);
   const input = parseBody(transitionSchema, body);
-  const data = await transitionRequest(reference, input);
-  return ok(data);
+  const data = await transitionRequest(reference, input, ifMatch);
+  const etag = `"${new Date(data.updatedAt).getTime()}"`;
+  return ok(data, undefined, { ETag: etag });
 });
 
 export const GET = methodNotAllowed;

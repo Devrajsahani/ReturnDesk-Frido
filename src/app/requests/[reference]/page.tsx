@@ -16,7 +16,7 @@ import { NotesCard } from "@/components/detail/NotesCard";
 import { ApproveDialog } from "@/components/detail/ApproveDialog";
 import { RejectDialog } from "@/components/detail/RejectDialog";
 import { RemoveDialog } from "@/components/detail/RemoveDialog";
-import { apiFetch, ApiClientError } from "@/lib/api/client";
+import { apiFetch, apiFetchWithHeaders, ApiClientError } from "@/lib/api/client";
 import type { ReturnRequestDetail } from "@/lib/domain/types";
 
 interface DetailApiResponse {
@@ -28,10 +28,12 @@ export default function RequestDetailPage({ params }: { params: Promise<{ refere
   const { showToast } = useToast();
 
   const [request, setRequest] = useState<ReturnRequestDetail | null>(null);
+  const [etag, setEtag] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [pageError, setPageError] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [isStale, setIsStale] = useState(false);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
   const router = useRouter();
@@ -52,13 +54,18 @@ export default function RequestDetailPage({ params }: { params: Promise<{ refere
 
     async function loadData() {
       try {
-        const res = await apiFetch<DetailApiResponse>(
+        const res = await apiFetchWithHeaders<DetailApiResponse>(
           `/api/requests/${encodeURIComponent(reference)}`,
         );
         if (!ignore) {
-          setRequest(res.data);
+          setRequest(res.data.data);
+          setEtag(
+            res.etag ||
+              (res.data.data.updatedAt ? `"${new Date(res.data.data.updatedAt).getTime()}"` : null),
+          );
           setNotFound(false);
           setPageError(null);
+          setIsStale(false);
           setLoading(false);
         }
       } catch (err: unknown) {
@@ -88,10 +95,12 @@ export default function RequestDetailPage({ params }: { params: Promise<{ refere
   const handleTransition = async (toStatus: "in_review" | "completed") => {
     setActionLoading(toStatus);
     setActionError(null);
+    setIsStale(false);
 
     try {
       await apiFetch(`/api/requests/${reference}/transitions`, {
         method: "POST",
+        headers: etag ? { "If-Match": etag } : undefined,
         body: JSON.stringify({ to: toStatus }),
       });
 
@@ -105,6 +114,9 @@ export default function RequestDetailPage({ params }: { params: Promise<{ refere
     } catch (err: unknown) {
       if (err instanceof ApiClientError) {
         setActionError(err.message);
+        if (err.status === 412) {
+          setIsStale(true);
+        }
       } else {
         setActionError("Action failed. Please check your connection and try again.");
       }
@@ -261,7 +273,23 @@ export default function RequestDetailPage({ params }: { params: Promise<{ refere
       </div>
 
       {/* Action Error Banner */}
-      {actionError && <Banner variant="danger" title="Action failed" message={actionError} />}
+      {actionError && (
+        <Banner
+          variant="danger"
+          title={isStale ? "Request changed" : "Action failed"}
+          message={actionError}
+          actionLabel={isStale ? "Reload" : undefined}
+          onAction={
+            isStale
+              ? () => {
+                  setActionError(null);
+                  setIsStale(false);
+                  fetchDetail();
+                }
+              : undefined
+          }
+        />
+      )}
 
       {/* Header: ReferenceTag (lg), StatusBadge & Desktop Actions */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -302,22 +330,37 @@ export default function RequestDetailPage({ params }: { params: Promise<{ refere
       {/* Dialog Modals */}
       <ApproveDialog
         reference={request.reference}
+        etag={etag}
         open={approveOpen}
         onClose={() => setApproveOpen(false)}
         onSuccess={fetchDetail}
+        onStale={(msg) => {
+          setActionError(msg);
+          setIsStale(true);
+        }}
       />
 
       <RejectDialog
         reference={request.reference}
+        etag={etag}
         open={rejectOpen}
         onClose={() => setRejectOpen(false)}
         onSuccess={fetchDetail}
+        onStale={(msg) => {
+          setActionError(msg);
+          setIsStale(true);
+        }}
       />
 
       <RemoveDialog
         reference={request.reference}
+        etag={etag}
         open={removeOpen}
         onClose={() => setRemoveOpen(false)}
+        onStale={(msg) => {
+          setActionError(msg);
+          setIsStale(true);
+        }}
       />
     </div>
   );

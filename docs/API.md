@@ -44,6 +44,7 @@ Every error has the same shape. `details` is included when there's something use
 | 422    | `VALIDATION_FAILED`      | The body is JSON but a field is missing, invalid or unknown, or an edit changes nothing                                    |
 | 422    | `RESOLUTION_REQUIRED`    | Approving without a resolution, or approving a refund without a valid amount                                               |
 | 422    | `RESOLUTION_NOT_ALLOWED` | Sending an amount with a replacement or store credit, or a resolution or amount with any status change other than approval |
+| 412    | `STALE_REQUEST`          | The request changed since you opened it (`If-Match` did not match `updated_at`); reload and retry                          |
 | 503    | `SERVICE_UNAVAILABLE`    | The database can't be reached; retrying later should work                                                                  |
 | 500    | `INTERNAL_ERROR`         | Anything unexpected. The details are logged on the server, not returned.                                                   |
 
@@ -383,3 +384,35 @@ curl -i -X POST "$BASE/requests" -H "Content-Type: application/json" \
   }
 }
 ```
+
+---
+
+## Concurrent edits and optimistic locking
+
+Every `GET /api/requests/:reference` response sets an `ETag` HTTP response header containing the record's `updatedAt` timestamp as epoch milliseconds in quotes:
+
+```http
+ETag: "1727280000000"
+```
+
+Clients performing mutations (`PATCH /api/requests/:reference`, `POST /api/requests/:reference/transitions`, and `DELETE /api/requests/:reference`) can send an `If-Match` header with this value:
+
+```bash
+curl -i -X PATCH "$BASE/requests/RD-00001" \
+  -H "Content-Type: application/json" \
+  -H 'If-Match: "1727280000000"' \
+  -d '{"customerName":"Updated Name"}'
+```
+
+If another agent modified the request in the meantime, the server rejects the write with **`412 Precondition Failed`**:
+
+```json
+{
+  "error": {
+    "code": "STALE_REQUEST",
+    "message": "This request changed since you opened it. Reload to see the latest version."
+  }
+}
+```
+
+The `If-Match` header is optional so quick curl exploration and scripts continue to work without having to pass ETags. Successful `PATCH` and status transition responses return the updated `ETag` header.

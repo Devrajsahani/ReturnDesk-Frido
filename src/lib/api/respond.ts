@@ -2,9 +2,13 @@ import { NextResponse } from "next/server";
 import { type z } from "zod";
 import { ApiError, type ErrorEnvelope } from "./errors";
 
-export function ok<T, M = unknown>(data: T, meta?: M): NextResponse<{ data: T; meta?: M }> {
+export function ok<T, M = unknown>(
+  data: T,
+  meta?: M,
+  headers?: HeadersInit,
+): NextResponse<{ data: T; meta?: M }> {
   const payload = meta !== undefined ? { data, meta } : { data };
-  return NextResponse.json(payload, { status: 200 });
+  return NextResponse.json(payload, { status: 200, headers });
 }
 
 export function created<T>(data: T, location: string): NextResponse<{ data: T }> {

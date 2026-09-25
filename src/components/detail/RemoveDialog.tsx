@@ -9,11 +9,13 @@ import { apiFetch, ApiClientError } from "@/lib/api/client";
 
 export interface RemoveDialogProps {
   reference: string;
+  etag?: string | null;
   open: boolean;
   onClose: () => void;
+  onStale?: (msg: string) => void;
 }
 
-export function RemoveDialog({ reference, open, onClose }: RemoveDialogProps) {
+export function RemoveDialog({ reference, etag, open, onClose, onStale }: RemoveDialogProps) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -25,12 +27,18 @@ export function RemoveDialog({ reference, open, onClose }: RemoveDialogProps) {
     try {
       await apiFetch(`/api/requests/${reference}`, {
         method: "DELETE",
+        headers: etag ? { "If-Match": etag } : undefined,
       });
 
       // Redirect to desk with removed confirmation query param
       router.push(`/?removed=${reference}`);
     } catch (err: unknown) {
       if (err instanceof ApiClientError) {
+        if (err.status === 412 && onStale) {
+          onClose();
+          onStale(err.message);
+          return;
+        }
         setError(err.message);
       } else {
         setError("Failed to remove request. Please check your connection.");

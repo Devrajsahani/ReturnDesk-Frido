@@ -19,20 +19,24 @@ interface RouteParams {
 export const GET = withErrorHandling(async (_req: NextRequest, { params }: RouteParams) => {
   const { reference } = await params;
   const data = await getRequestDetail(reference);
-  return ok(data);
+  const etag = `"${new Date(data.updatedAt).getTime()}"`;
+  return ok(data, undefined, { ETag: etag });
 });
 
 export const PATCH = withErrorHandling(async (req: NextRequest, { params }: RouteParams) => {
   const { reference } = await params;
+  const ifMatch = req.headers.get("if-match") ?? undefined;
   const body = await parseJsonBody(req);
   const input = parseBody(updateRequestSchema, body);
-  const data = await updateRequest(reference, input);
-  return ok(data);
+  const data = await updateRequest(reference, input, ifMatch);
+  const etag = `"${new Date(data.updatedAt).getTime()}"`;
+  return ok(data, undefined, { ETag: etag });
 });
 
-export const DELETE = withErrorHandling(async (_req: NextRequest, { params }: RouteParams) => {
+export const DELETE = withErrorHandling(async (req: NextRequest, { params }: RouteParams) => {
   const { reference } = await params;
-  await removeRequest(reference);
+  const ifMatch = req.headers.get("if-match") ?? undefined;
+  await removeRequest(reference, ifMatch);
   return noContent();
 });
 

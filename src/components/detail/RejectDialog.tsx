@@ -9,12 +9,21 @@ import { apiFetch, ApiClientError } from "@/lib/api/client";
 
 export interface RejectDialogProps {
   reference: string;
+  etag?: string | null;
   open: boolean;
   onClose: () => void;
   onSuccess: () => void;
+  onStale?: (msg: string) => void;
 }
 
-export function RejectDialog({ reference, open, onClose, onSuccess }: RejectDialogProps) {
+export function RejectDialog({
+  reference,
+  etag,
+  open,
+  onClose,
+  onSuccess,
+  onStale,
+}: RejectDialogProps) {
   const { showToast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -26,6 +35,7 @@ export function RejectDialog({ reference, open, onClose, onSuccess }: RejectDial
     try {
       await apiFetch(`/api/requests/${reference}/transitions`, {
         method: "POST",
+        headers: etag ? { "If-Match": etag } : undefined,
         body: JSON.stringify({
           to: "rejected",
         }),
@@ -36,6 +46,11 @@ export function RejectDialog({ reference, open, onClose, onSuccess }: RejectDial
       onClose();
     } catch (err: unknown) {
       if (err instanceof ApiClientError) {
+        if (err.status === 412 && onStale) {
+          onClose();
+          onStale(err.message);
+          return;
+        }
         setError(err.message);
       } else {
         setError("Failed to reject request. Please check your connection.");

@@ -19,7 +19,16 @@ export class ApiClientError extends Error {
   }
 }
 
-export async function apiFetch<T>(url: string, options?: RequestInit): Promise<T> {
+export interface ApiFetchWithHeadersResult<T> {
+  data: T;
+  headers: Headers;
+  etag: string | null;
+}
+
+export async function apiFetchWithHeaders<T>(
+  url: string,
+  options?: RequestInit,
+): Promise<ApiFetchWithHeadersResult<T>> {
   try {
     const res = await fetch(url, {
       ...options,
@@ -29,8 +38,10 @@ export async function apiFetch<T>(url: string, options?: RequestInit): Promise<T
       },
     });
 
+    const etag = res.headers.get("etag");
+
     if (res.status === 204) {
-      return null as T;
+      return { data: null as T, headers: res.headers, etag };
     }
 
     const contentType = res.headers.get("content-type");
@@ -55,13 +66,9 @@ export async function apiFetch<T>(url: string, options?: RequestInit): Promise<T
       );
     }
 
-    if (isJson) {
-      return (await res.json()) as T;
-    }
-
-    return (await res.text()) as unknown as T;
+    const data = isJson ? ((await res.json()) as T) : ((await res.text()) as unknown as T);
+    return { data, headers: res.headers, etag };
   } catch (err: unknown) {
-    // AbortError passes through untouched
     if (
       (typeof DOMException !== "undefined" &&
         err instanceof DOMException &&
@@ -73,11 +80,15 @@ export async function apiFetch<T>(url: string, options?: RequestInit): Promise<T
     if (err instanceof ApiClientError) {
       throw err;
     }
-    // Network failures
     throw new ApiClientError(
       0,
       "UNKNOWN_ERROR",
       "Couldn't reach the server. Check your connection and try again.",
     );
   }
+}
+
+export async function apiFetch<T>(url: string, options?: RequestInit): Promise<T> {
+  const result = await apiFetchWithHeaders<T>(url, options);
+  return result.data;
 }

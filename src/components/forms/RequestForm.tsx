@@ -57,10 +57,11 @@ export interface RequestFormData {
 export interface RequestFormProps {
   mode: "create" | "edit";
   reference?: string;
+  etag?: string | null;
   initialValues?: Partial<RequestFormData>;
 }
 
-export function RequestForm({ mode, reference, initialValues }: RequestFormProps) {
+export function RequestForm({ mode, reference, etag, initialValues }: RequestFormProps) {
   const router = useRouter();
   const { showToast } = useToast();
 
@@ -130,16 +131,26 @@ export function RequestForm({ mode, reference, initialValues }: RequestFormProps
       const endpoint = mode === "create" ? "/api/requests" : `/api/requests/${reference}`;
       const method = mode === "create" ? "POST" : "PATCH";
 
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (mode === "edit" && etag) {
+        headers["If-Match"] = etag;
+      }
+
       const res = await fetch(endpoint, {
         method,
-        headers: { "Content-Type": "application/json" },
+        headers,
         body: JSON.stringify(rawData),
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-        if (res.status === 422 && data.error?.details?.fields) {
+        if (res.status === 412) {
+          setServerError(
+            data.error?.message ||
+              "This request changed since you opened it. Reload to see the latest version.",
+          );
+        } else if (res.status === 422 && data.error?.details?.fields) {
           setFieldErrors(data.error.details.fields);
           setServerError(data.error.message || "Please correct the errors below.");
         } else if (res.status === 409 && data.error?.code === "DUPLICATE_LIVE_REQUEST") {

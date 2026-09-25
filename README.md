@@ -134,7 +134,7 @@ Errors always come back in the same shape, `{ "error": { "code", "message", "det
 
 **Status codes.** 400 means the request itself is malformed (bad JSON or a bad query parameter). 422 means it's well-formed but the data is invalid. 409 means the data is fine but the request's current state doesn't allow the action. 404 covers missing and removed requests alike. If the database can't be reached, the API returns 503 instead of a generic 500.
 
-**Concurrency.** Edits, status changes and removals load the request with `SELECT … FOR UPDATE` inside a transaction before checking the rules. Two agents acting on the same request at once are handled one after the other, and the second one sees the updated state. For new requests, the unique index above does the same job.
+**Concurrency and optimistic locking.** Writes load the row with `SELECT … FOR UPDATE` inside a transaction so concurrent database operations sequence safely. On top of this, detail responses provide an `ETag` based on `updated_at`, and the frontend sends `If-Match` on edits, transitions, and removals. If another agent updated the record first, the server returns **412 Precondition Failed** (`STALE_REQUEST`), prompting the agent to reload. We chose 412 over 409 because 409 means a domain state conflict (such as an illegal lifecycle move), whereas 412 specifically indicates that an HTTP precondition check on an entity tag failed. The `If-Match` header is optional so quick API testing with curl remains straightforward.
 
 **Money** is `numeric(10,2)` in Postgres and a string like `"499.00"` in JSON, so no floating-point rounding ever touches an amount.
 
@@ -169,7 +169,6 @@ Where the brief left something open, I made these choices:
 - **Integration tests.** Unit tests cover the lifecycle rules and every input validation rule (`npm test`), and run in GitHub Actions on each push. The HTTP behaviour and database constraints were checked with the curl examples in `docs/API.md`. Next step is integration tests against a separate database, one group per rule, running each rule end to end.
 - **Search at scale.** `ILIKE '%…%'` can't use a normal index, which is fine at this size. With a lot of data, I'd add `pg_trgm` indexes and measure with `EXPLAIN ANALYZE`. Pagination uses `OFFSET`, which I'd switch to keyset pagination for very deep pages.
 - **A history of status changes.** The app records when a request was decided, but not a full log of who changed what and when. An append-only events table shown next to the notes would be the next step.
-- **Conflicting edits.** Row locks keep writes consistent, but an agent looking at a stale page isn't warned before acting. An `If-Match` / `ETag` check would fix that.
 
 ---
 

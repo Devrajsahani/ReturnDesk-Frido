@@ -94,9 +94,13 @@ export async function getRequestDetail(reference: string): Promise<ReturnRequest
   };
 }
 
+export { assertNotStale } from "../domain/etag";
+import { assertNotStale } from "../domain/etag";
+
 export async function updateRequest(
   reference: string,
   updates: UpdateRequestInput,
+  ifMatch?: string,
 ): Promise<ReturnRequestSummary> {
   const ref = reference.toUpperCase();
 
@@ -105,6 +109,8 @@ export async function updateRequest(
     if (!row) {
       throw new ApiError(404, "NOT_FOUND", `Request '${ref}' not found`);
     }
+
+    assertNotStale(row.updated_at, ifMatch);
 
     if (isLocked(row.status)) {
       throw new ApiError(
@@ -160,6 +166,7 @@ export async function updateRequest(
 export async function transitionRequest(
   reference: string,
   input: TransitionInput,
+  ifMatch?: string,
 ): Promise<ReturnRequestSummary> {
   const ref = reference.toUpperCase();
 
@@ -168,6 +175,8 @@ export async function transitionRequest(
     if (!row) {
       throw new ApiError(404, "NOT_FOUND", `Request '${ref}' not found`);
     }
+
+    assertNotStale(row.updated_at, ifMatch);
 
     if (!canTransition(row.status, input.to)) {
       throw new ApiError(
@@ -244,7 +253,7 @@ export async function transitionRequest(
   });
 }
 
-export async function removeRequest(reference: string): Promise<void> {
+export async function removeRequest(reference: string, ifMatch?: string): Promise<void> {
   const ref = reference.toUpperCase();
 
   await withTransaction(async (client) => {
@@ -252,6 +261,8 @@ export async function removeRequest(reference: string): Promise<void> {
     if (!row) {
       throw new ApiError(404, "NOT_FOUND", `Request '${ref}' not found`);
     }
+
+    assertNotStale(row.updated_at, ifMatch);
 
     if (!isRemovable(row.status)) {
       throw new ApiError(

@@ -19,6 +19,7 @@ export default function EditRequestPage({ params }: PageProps) {
   const router = useRouter();
 
   const [request, setRequest] = useState<ReturnRequestDetail | null>(null);
+  const [etag, setEtag] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -42,6 +43,11 @@ export default function EditRequestPage({ params }: PageProps) {
         const data = await res.json();
         if (!cancelled) {
           setRequest(data.data);
+          const responseEtag = res.headers.get("etag");
+          setEtag(
+            responseEtag ||
+              (data.data?.updatedAt ? `"${new Date(data.data.updatedAt).getTime()}"` : null),
+          );
         }
       } catch {
         if (!cancelled) {
@@ -125,6 +131,7 @@ export default function EditRequestPage({ params }: PageProps) {
         <RequestForm
           mode="edit"
           reference={reference}
+          etag={etag}
           initialValues={{
             customerName: request.customerName,
             customerEmail: request.customerEmail,

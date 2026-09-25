@@ -11,12 +11,21 @@ import { apiFetch, ApiClientError } from "@/lib/api/client";
 
 export interface ApproveDialogProps {
   reference: string;
+  etag?: string | null;
   open: boolean;
   onClose: () => void;
   onSuccess: () => void;
+  onStale?: (msg: string) => void;
 }
 
-export function ApproveDialog({ reference, open, onClose, onSuccess }: ApproveDialogProps) {
+export function ApproveDialog({
+  reference,
+  etag,
+  open,
+  onClose,
+  onSuccess,
+  onStale,
+}: ApproveDialogProps) {
   const { showToast } = useToast();
   const [resolution, setResolution] = useState<"refund" | "replacement" | "store_credit">("refund");
   const [refundAmount, setRefundAmount] = useState("");
@@ -41,6 +50,7 @@ export function ApproveDialog({ reference, open, onClose, onSuccess }: ApproveDi
     try {
       await apiFetch(`/api/requests/${reference}/transitions`, {
         method: "POST",
+        headers: etag ? { "If-Match": etag } : undefined,
         body: JSON.stringify(body),
       });
 
@@ -49,6 +59,11 @@ export function ApproveDialog({ reference, open, onClose, onSuccess }: ApproveDi
       onClose();
     } catch (err: unknown) {
       if (err instanceof ApiClientError) {
+        if (err.status === 412 && onStale) {
+          onClose();
+          onStale(err.message);
+          return;
+        }
         setError(err.message);
       } else {
         setError("Failed to approve request. Please check your connection.");
