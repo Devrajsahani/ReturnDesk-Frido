@@ -43,11 +43,7 @@ export default function EditRequestPage({ params }: PageProps) {
         const data = await res.json();
         if (!cancelled) {
           setRequest(data.data);
-          const responseEtag = res.headers.get("etag");
-          setEtag(
-            responseEtag ||
-              (data.data?.updatedAt ? `"${new Date(data.data.updatedAt).getTime()}"` : null),
-          );
+          setEtag(`"${new Date(data.data.updatedAt).getTime()}"`);
         }
       } catch {
         if (!cancelled) {

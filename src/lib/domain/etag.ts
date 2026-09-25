@@ -7,11 +7,14 @@ export function formatETag(updatedAt: Date | string | number): string {
 
 export function assertNotStale(rowUpdatedAt: Date | string | number, ifMatch?: string): void {
   if (ifMatch === undefined) return;
-  const match = ifMatch.replace(/^"|"$/g, "");
+  const trimmed = ifMatch.trim();
+  if (trimmed === "*") return;
+
+  const cleaned = trimmed.replace(/^W\//i, "").replace(/^"|"$/g, "");
   const current = String(
     typeof rowUpdatedAt === "number" ? rowUpdatedAt : new Date(rowUpdatedAt).getTime(),
   );
-  if (match !== current) {
+  if (cleaned !== current) {
     throw new ApiError(
       412,
       "STALE_REQUEST",

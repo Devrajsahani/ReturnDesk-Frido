@@ -16,7 +16,7 @@ import { NotesCard } from "@/components/detail/NotesCard";
 import { ApproveDialog } from "@/components/detail/ApproveDialog";
 import { RejectDialog } from "@/components/detail/RejectDialog";
 import { RemoveDialog } from "@/components/detail/RemoveDialog";
-import { apiFetch, apiFetchWithHeaders, ApiClientError } from "@/lib/api/client";
+import { apiFetch, ApiClientError } from "@/lib/api/client";
 import type { ReturnRequestDetail } from "@/lib/domain/types";
 
 interface DetailApiResponse {
@@ -54,15 +54,12 @@ export default function RequestDetailPage({ params }: { params: Promise<{ refere
 
     async function loadData() {
       try {
-        const res = await apiFetchWithHeaders<DetailApiResponse>(
+        const res = await apiFetch<DetailApiResponse>(
           `/api/requests/${encodeURIComponent(reference)}`,
         );
         if (!ignore) {
-          setRequest(res.data.data);
-          setEtag(
-            res.etag ||
-              (res.data.data.updatedAt ? `"${new Date(res.data.data.updatedAt).getTime()}"` : null),
-          );
+          setRequest(res.data);
+          setEtag(`"${new Date(res.data.updatedAt).getTime()}"`);
           setNotFound(false);
           setPageError(null);
           setIsStale(false);
