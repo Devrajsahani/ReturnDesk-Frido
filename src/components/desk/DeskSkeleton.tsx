@@ -16,10 +16,7 @@ export function DeskSkeleton() {
         </div>
         <div className="divide-y divide-hairline">
           {Array.from({ length: 6 }).map((_, i) => (
-            <div
-              key={i}
-              className="h-12 flex items-center px-4 gap-4 bg-paper"
-            >
+            <div key={i} className="h-12 flex items-center px-4 gap-4 bg-paper">
               <Skeleton className="h-5 w-20" />
               <Skeleton className="h-4 w-28" />
               <Skeleton className="h-4 w-24" />

@@ -34,11 +34,7 @@ export function FilterChip({
     >
       <span>{label}</span>
       {count !== undefined && (
-        <span
-          className={`ml-1.5 tabular-nums ${
-            selected ? "text-paper/80" : "text-graphite"
-          }`}
-        >
+        <span className={`ml-1.5 tabular-nums ${selected ? "text-paper/80" : "text-graphite"}`}>
           {count}
         </span>
       )}

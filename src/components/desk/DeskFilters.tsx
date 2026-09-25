@@ -86,12 +86,7 @@ export function DeskFilters({
             Search by reference, order or customer
           </label>
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-graphite">
-            <svg
-              className="size-4"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-              aria-hidden="true"
-            >
+            <svg className="size-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
               <path
                 fillRule="evenodd"
                 d="M9 3.5a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11ZM2 9a7 7 0 1 1 12.452 4.391l3.328 3.329a.75.75 0 1 1-1.06 1.06l-3.329-3.328A7 7 0 0 1 2 9Z"
@@ -151,15 +146,11 @@ export function DeskFilters({
       {/* Filter Rows: Always visible on desktop, collapsible on mobile */}
       <div
         id="mobile-filter-panel"
-        className={`${
-          mobileFiltersOpen ? "block" : "hidden sm:block"
-        } space-y-2 pt-1`}
+        className={`${mobileFiltersOpen ? "block" : "hidden sm:block"} space-y-2 pt-1`}
       >
         {/* Status Filter Row */}
         <div className="flex flex-wrap items-center gap-2">
-          <span className="w-14 text-xs font-medium text-graphite shrink-0">
-            Status
-          </span>
+          <span className="w-14 text-xs font-medium text-graphite shrink-0">Status</span>
           <FilterChip
             label="All"
             selected={selectedStatuses.length === 0}
@@ -177,9 +168,7 @@ export function DeskFilters({
 
         {/* Reason Filter Row */}
         <div className="flex flex-wrap items-center gap-2">
-          <span className="w-14 text-xs font-medium text-graphite shrink-0">
-            Reason
-          </span>
+          <span className="w-14 text-xs font-medium text-graphite shrink-0">Reason</span>
           <FilterChip
             label="All"
             selected={selectedReasons.length === 0}

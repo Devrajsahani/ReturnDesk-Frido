@@ -19,9 +19,7 @@ export function DeskCard({ request }: DeskCardProps) {
         <ReferenceTag reference={request.reference} />
         <StatusBadge status={request.status} />
       </div>
-      <div className="font-medium text-ink text-sm pt-0.5">
-        {request.customerName}
-      </div>
+      <div className="font-medium text-ink text-sm pt-0.5">{request.customerName}</div>
       <div className="text-xs text-graphite">{request.orderNumber}</div>
       <div className="text-xs text-graphite truncate">
         {request.itemName}

@@ -32,8 +32,8 @@ export function ChoiceTile({
   const stateClass = disabled
     ? "opacity-50 cursor-not-allowed"
     : checked
-    ? "border-2 border-ink bg-label-tint cursor-pointer"
-    : "box-interactive";
+      ? "border-2 border-ink bg-label-tint cursor-pointer"
+      : "box-interactive";
 
   return (
     <label
@@ -51,11 +51,7 @@ export function ChoiceTile({
         className="sr-only"
       />
       <span className="font-sans font-medium text-sm text-ink">{title}</span>
-      {description && (
-        <span className="font-sans text-xs text-graphite mt-0.5">
-          {description}
-        </span>
-      )}
+      {description && <span className="font-sans text-xs text-graphite mt-0.5">{description}</span>}
     </label>
   );
 }
@@ -79,16 +75,12 @@ export function ChoiceTileGroup({
     columns === 1
       ? "grid-cols-1"
       : columns === 3
-      ? "grid-cols-1 sm:grid-cols-3"
-      : "grid-cols-1 sm:grid-cols-2";
+        ? "grid-cols-1 sm:grid-cols-3"
+        : "grid-cols-1 sm:grid-cols-2";
 
   return (
     <fieldset className="w-full border-none p-0 m-0">
-      {label && (
-        <legend className="block text-sm font-medium text-ink mb-2">
-          {label}
-        </legend>
-      )}
+      {label && <legend className="block text-sm font-medium text-ink mb-2">{label}</legend>}
       <div className={`grid gap-2.5 ${colClass} ${className}`}>{children}</div>
       {error && (
         <p role="alert" className="text-xs text-danger mt-1.5">

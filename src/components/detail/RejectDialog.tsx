@@ -14,12 +14,7 @@ export interface RejectDialogProps {
   onSuccess: () => void;
 }
 
-export function RejectDialog({
-  reference,
-  open,
-  onClose,
-  onSuccess,
-}: RejectDialogProps) {
+export function RejectDialog({ reference, open, onClose, onSuccess }: RejectDialogProps) {
   const { showToast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -58,25 +53,15 @@ export function RejectDialog({
   return (
     <Dialog open={open} onClose={handleClose} title={`Reject ${reference}`}>
       <div className="space-y-4">
-        {error && (
-          <Banner
-            variant="danger"
-            message={error}
-          />
-        )}
+        {error && <Banner variant="danger" message={error} />}
 
         <p className="text-sm text-graphite leading-relaxed">
-          Are you sure you want to reject request{" "}
-          <strong className="text-ink">{reference}</strong>? Once rejected, the
-          decision is final and cannot be approved or edited.
+          Are you sure you want to reject request <strong className="text-ink">{reference}</strong>?
+          Once rejected, the decision is final and cannot be approved or edited.
         </p>
 
         <div className="flex items-center justify-end gap-3 pt-3 border-t border-hairline">
-          <Button
-            variant="ghost"
-            onClick={handleClose}
-            disabled={isSubmitting}
-          >
+          <Button variant="ghost" onClick={handleClose} disabled={isSubmitting}>
             Cancel
           </Button>
           <Button

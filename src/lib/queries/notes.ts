@@ -19,7 +19,7 @@ export interface NoteSummary {
 
 export async function findNotesByRequestId(
   requestId: number | string,
-  client?: PoolClient
+  client?: PoolClient,
 ): Promise<NoteSummary[]> {
   const sql = `
     SELECT id, author, body, created_at
@@ -43,7 +43,7 @@ export async function insertNote(
   requestId: number | string,
   author: string,
   body: string,
-  client?: PoolClient
+  client?: PoolClient,
 ): Promise<NoteSummary> {
   const sql = `
     INSERT INTO request_notes (request_id, author, body)

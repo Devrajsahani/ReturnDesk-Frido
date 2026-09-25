@@ -53,13 +53,11 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
               activeToast.variant === "danger"
                 ? "border-l-danger bg-paper"
                 : activeToast.variant === "warning"
-                ? "border-l-warning bg-paper"
-                : "border-l-success bg-paper"
+                  ? "border-l-warning bg-paper"
+                  : "border-l-success bg-paper"
             }`}
           >
-            <p className="font-sans text-sm font-medium text-ink">
-              {activeToast.message}
-            </p>
+            <p className="font-sans text-sm font-medium text-ink">{activeToast.message}</p>
             <button
               type="button"
               onClick={hideToast}

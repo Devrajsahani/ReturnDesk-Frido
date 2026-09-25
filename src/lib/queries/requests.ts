@@ -2,7 +2,12 @@ import "server-only";
 import { type PoolClient } from "pg";
 import { query } from "../db";
 import type { RequestResolution, RequestStatus, ReturnReason } from "../domain/constants";
-import type { CreateRequestInput, ListQueryInput, SortField, UpdateRequestInput } from "../validation/schemas";
+import type {
+  CreateRequestInput,
+  ListQueryInput,
+  SortField,
+  UpdateRequestInput,
+} from "../validation/schemas";
 
 export interface RequestRow {
   id: number | string;
@@ -77,7 +82,7 @@ export function buildWhereClause(filters: RequestFilterParams): {
   if (filters.q) {
     const escaped = `%${escapeIlike(filters.q)}%`;
     conditions.push(
-      `(reference ILIKE $${paramIndex} ESCAPE '\\' OR order_number ILIKE $${paramIndex} ESCAPE '\\' OR customer_name ILIKE $${paramIndex} ESCAPE '\\' OR customer_email ILIKE $${paramIndex} ESCAPE '\\')`
+      `(reference ILIKE $${paramIndex} ESCAPE '\\' OR order_number ILIKE $${paramIndex} ESCAPE '\\' OR customer_name ILIKE $${paramIndex} ESCAPE '\\' OR customer_email ILIKE $${paramIndex} ESCAPE '\\')`,
     );
     params.push(escaped);
     paramIndex++;
@@ -122,7 +127,7 @@ export function mapRowToSummary(row: RequestRow): ReturnRequestSummary {
 }
 
 export async function findRequests(
-  input: ListQueryInput
+  input: ListQueryInput,
 ): Promise<{ data: ReturnRequestSummary[]; meta: PaginationMeta }> {
   const { whereSql, params } = buildWhereClause({
     q: input.q,
@@ -185,7 +190,7 @@ export async function findRequests(
 
 export async function createRequestQuery(
   input: CreateRequestInput,
-  client?: PoolClient
+  client?: PoolClient,
 ): Promise<ReturnRequestSummary> {
   const sql = `
     INSERT INTO return_requests (
@@ -238,7 +243,7 @@ export async function createRequestQuery(
 
 export async function findRequestByReference(
   reference: string,
-  client?: PoolClient
+  client?: PoolClient,
 ): Promise<RequestRow | null> {
   const sql = `
     SELECT
@@ -271,7 +276,7 @@ export async function findRequestByReference(
 
 export async function findRequestForUpdate(
   reference: string,
-  client: PoolClient
+  client: PoolClient,
 ): Promise<RequestRow | null> {
   const sql = `
     SELECT
@@ -303,7 +308,7 @@ export async function findRequestForUpdate(
 export async function findLiveRequestByOrderAndSku(
   orderNumber: string,
   itemSku: string,
-  client?: PoolClient
+  client?: PoolClient,
 ): Promise<{ reference: string } | null> {
   const sql = `
     SELECT reference
@@ -325,7 +330,7 @@ export async function findLiveRequestByOrderAndSku(
 export async function updateRequestQuery(
   id: number | string,
   updates: UpdateRequestInput,
-  client: PoolClient
+  client: PoolClient,
 ): Promise<ReturnRequestSummary> {
   const sets: string[] = ["updated_at = now()"];
   const params: unknown[] = [id];
@@ -398,7 +403,7 @@ export async function transitionRequestQuery(
     resolution?: RequestResolution;
     refundAmount?: string;
   },
-  client: PoolClient
+  client: PoolClient,
 ): Promise<ReturnRequestSummary> {
   let sql: string;
   let params: unknown[];
@@ -473,7 +478,7 @@ export async function transitionRequestQuery(
 
 export async function softDeleteRequestQuery(
   id: number | string,
-  client: PoolClient
+  client: PoolClient,
 ): Promise<void> {
   const sql = `
     UPDATE return_requests

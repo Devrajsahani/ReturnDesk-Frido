@@ -38,7 +38,7 @@ export function Dialog({
 
       if (e.key === "Tab" && dialogRef.current) {
         const focusable = dialogRef.current.querySelectorAll<HTMLElement>(
-          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
         );
         if (focusable.length === 0) return;
 
@@ -65,7 +65,7 @@ export function Dialog({
     const timer = setTimeout(() => {
       if (dialogRef.current) {
         const focusable = dialogRef.current.querySelectorAll<HTMLElement>(
-          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
         );
         if (focusable.length > 0) {
           focusable[0].focus();
@@ -99,10 +99,7 @@ export function Dialog({
         className={`box p-6 w-full max-w-[480px] shadow-dialog animate-in fade-in zoom-in-95 duration-180 ease-snap text-left relative focus:outline-none ${className}`}
       >
         <div className="flex items-center justify-between mb-4">
-          <h3
-            id={titleId}
-            className="font-display font-semibold text-xl text-ink"
-          >
+          <h3 id={titleId} className="font-display font-semibold text-xl text-ink">
             {title}
           </h3>
           <button

@@ -13,15 +13,13 @@ export interface RequestDetailsCardProps {
 export function RequestDetailsCard({ request, canEdit }: RequestDetailsCardProps) {
   const reasonText = (REASON_LABELS as Record<string, string>)[request.reason] ?? request.reason;
   const resolutionText = request.resolution
-    ? (RESOLUTION_LABELS as Record<string, string>)[request.resolution] ?? request.resolution
+    ? ((RESOLUTION_LABELS as Record<string, string>)[request.resolution] ?? request.resolution)
     : "—";
 
   return (
     <div className="box p-5 space-y-4">
       <div className="flex items-center justify-between border-b border-hairline pb-3">
-        <h2 className="font-display font-semibold text-base text-ink">
-          Request details
-        </h2>
+        <h2 className="font-display font-semibold text-base text-ink">Request details</h2>
         {canEdit ? (
           <Link href={`/requests/${request.reference}/edit`}>
             <Button variant="secondary" size="sm">
@@ -31,7 +29,8 @@ export function RequestDetailsCard({ request, canEdit }: RequestDetailsCardProps
         ) : (
           ["approved", "rejected", "completed"].includes(request.status) && (
             <p className="text-xs text-graphite">
-              Details are locked because this request was {request.status} on {formatShortDate(request.decidedAt)}.
+              Details are locked because this request was {request.status} on{" "}
+              {formatShortDate(request.decidedAt)}.
             </p>
           )
         )}

@@ -13,11 +13,7 @@ export interface RemoveDialogProps {
   onClose: () => void;
 }
 
-export function RemoveDialog({
-  reference,
-  open,
-  onClose,
-}: RemoveDialogProps) {
+export function RemoveDialog({ reference, open, onClose }: RemoveDialogProps) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -51,24 +47,15 @@ export function RemoveDialog({
   return (
     <Dialog open={open} onClose={handleClose} title={`Remove ${reference}`}>
       <div className="space-y-4">
-        {error && (
-          <Banner
-            variant="danger"
-            message={error}
-          />
-        )}
+        {error && <Banner variant="danger" message={error} />}
 
         <p className="text-sm text-graphite leading-relaxed">
-          Remove request <strong className="text-ink">{reference}</strong> from
-          the desk? It will no longer appear in desk searches or listings.
+          Remove request <strong className="text-ink">{reference}</strong> from the desk? It will no
+          longer appear in desk searches or listings.
         </p>
 
         <div className="flex items-center justify-end gap-3 pt-3 border-t border-hairline">
-          <Button
-            variant="ghost"
-            onClick={handleClose}
-            disabled={isSubmitting}
-          >
+          <Button variant="ghost" onClick={handleClose} disabled={isSubmitting}>
             Cancel
           </Button>
           <Button

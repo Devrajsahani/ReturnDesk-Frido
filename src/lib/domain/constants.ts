@@ -1,10 +1,4 @@
-export const STATUSES = [
-  "open",
-  "in_review",
-  "approved",
-  "rejected",
-  "completed",
-] as const;
+export const STATUSES = ["open", "in_review", "approved", "rejected", "completed"] as const;
 
 export type RequestStatus = (typeof STATUSES)[number];
 
@@ -18,11 +12,7 @@ export const REASONS = [
 
 export type ReturnReason = (typeof REASONS)[number];
 
-export const RESOLUTIONS = [
-  "refund",
-  "replacement",
-  "store_credit",
-] as const;
+export const RESOLUTIONS = ["refund", "replacement", "store_credit"] as const;
 
 export type RequestResolution = (typeof RESOLUTIONS)[number];
 

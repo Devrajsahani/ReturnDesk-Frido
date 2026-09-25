@@ -1,8 +1,5 @@
 import React from "react";
-import {
-  STATUS_LABELS,
-  type RequestStatus,
-} from "@/lib/domain/constants";
+import { STATUS_LABELS, type RequestStatus } from "@/lib/domain/constants";
 
 export interface StatusBadgeProps {
   status: RequestStatus;
@@ -25,13 +22,8 @@ export function StatusBadge({ status, className = "" }: StatusBadgeProps) {
     <span
       className={`inline-flex items-center gap-1.5 h-6 px-2.5 bg-paper border border-rule rounded-control select-none transition-opacity duration-180 ease-snap ${className}`}
     >
-      <span
-        aria-hidden="true"
-        className={`size-2 shrink-0 ${colorClass}`}
-      />
-      <span className="font-sans text-xs font-medium text-ink">
-        {label}
-      </span>
+      <span aria-hidden="true" className={`size-2 shrink-0 ${colorClass}`} />
+      <span className="font-sans text-xs font-medium text-ink">{label}</span>
     </span>
   );
 }

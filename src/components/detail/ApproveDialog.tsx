@@ -16,12 +16,7 @@ export interface ApproveDialogProps {
   onSuccess: () => void;
 }
 
-export function ApproveDialog({
-  reference,
-  open,
-  onClose,
-  onSuccess,
-}: ApproveDialogProps) {
+export function ApproveDialog({ reference, open, onClose, onSuccess }: ApproveDialogProps) {
   const { showToast } = useToast();
   const [resolution, setResolution] = useState<"refund" | "replacement" | "store_credit">("refund");
   const [refundAmount, setRefundAmount] = useState("");
@@ -71,17 +66,10 @@ export function ApproveDialog({
   return (
     <Dialog open={open} onClose={handleClose} title={`Approve ${reference}`}>
       <form onSubmit={handleSubmit} className="space-y-4">
-        {error && (
-          <Banner
-            variant="danger"
-            message={error}
-          />
-        )}
+        {error && <Banner variant="danger" message={error} />}
 
         <div>
-          <span className="block text-xs font-semibold text-graphite mb-2">
-            Resolution
-          </span>
+          <span className="block text-xs font-semibold text-graphite mb-2">Resolution</span>
           <ChoiceTileGroup columns={3} className="gap-2 sm:gap-3">
             <ChoiceTile
               name="resolution"
@@ -123,19 +111,10 @@ export function ApproveDialog({
         )}
 
         <div className="flex items-center justify-end gap-3 pt-3 border-t border-hairline">
-          <Button
-            variant="ghost"
-            onClick={handleClose}
-            disabled={isSubmitting}
-          >
+          <Button variant="ghost" onClick={handleClose} disabled={isSubmitting}>
             Cancel
           </Button>
-          <Button
-            type="submit"
-            variant="primary"
-            loading={isSubmitting}
-            disabled={isSubmitting}
-          >
+          <Button type="submit" variant="primary" loading={isSubmitting} disabled={isSubmitting}>
             Approve
           </Button>
         </div>

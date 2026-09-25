@@ -1,27 +1,27 @@
 @import "tailwindcss";
 
 @theme {
-  --color-canvas: #F7F7F5;
-  --color-paper: #FFFFFF;
+  --color-canvas: #f7f7f5;
+  --color-paper: #ffffff;
   --color-ink: #101820;
   --color-ink-hover: #243140;
-  --color-graphite: #5E6166;
-  --color-rule: #DDDDD8;
-  --color-hairline: #ECECE8;
-  --color-label: #FCD00B;
-  --color-label-tint: #FFF6CC;
-  --color-hover: #F1F1ED;
-  --color-status-open: #2F64D6;
-  --color-status-review: #E07B00;
-  --color-status-approved: #1F8A4C;
-  --color-status-rejected: #C8372D;
-  --color-status-completed: #8A9099;
-  --color-danger: #C8372D;
-  --color-danger-tint: #FDECEA;
-  --color-warning: #E07B00;
-  --color-warning-tint: #FFF3E0;
-  --color-success: #1F8A4C;
-  --color-success-tint: #E8F5EE;
+  --color-graphite: #5e6166;
+  --color-rule: #ddddd8;
+  --color-hairline: #ecece8;
+  --color-label: #fcd00b;
+  --color-label-tint: #fff6cc;
+  --color-hover: #f1f1ed;
+  --color-status-open: #2f64d6;
+  --color-status-review: #e07b00;
+  --color-status-approved: #1f8a4c;
+  --color-status-rejected: #c8372d;
+  --color-status-completed: #8a9099;
+  --color-danger: #c8372d;
+  --color-danger-tint: #fdecea;
+  --color-warning: #e07b00;
+  --color-warning-tint: #fff3e0;
+  --color-success: #1f8a4c;
+  --color-success-tint: #e8f5ee;
 
   --font-sans: var(--font-plex), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-outfit), var(--font-plex), sans-serif;
@@ -34,8 +34,13 @@
 }
 
 @layer base {
-  body { @apply bg-canvas text-ink font-sans text-sm antialiased; }
-  :focus-visible { outline: 2px solid var(--color-ink); outline-offset: 2px; }
+  body {
+    @apply bg-canvas text-ink font-sans text-sm antialiased;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 2px;
+  }
 }
 
 /* A plain container. */
@@ -48,22 +53,44 @@
 /* A box you can click: lifts onto a hard shadow on hover, presses flat on click. */
 @utility box-interactive {
   cursor: pointer;
-  transition: transform 120ms var(--ease-snap), box-shadow 120ms var(--ease-snap),
+  transition:
+    transform 120ms var(--ease-snap),
+    box-shadow 120ms var(--ease-snap),
     border-color 120ms var(--ease-snap);
   @media (hover: hover) {
-    &:hover { border-color: var(--color-ink); box-shadow: var(--shadow-lift); transform: translate(-1px, -1px); }
+    &:hover {
+      border-color: var(--color-ink);
+      box-shadow: var(--shadow-lift);
+      transform: translate(-1px, -1px);
+    }
   }
-  &:active { box-shadow: 0 0 0 0 var(--color-ink); transform: translate(1px, 1px); }
+  &:active {
+    box-shadow: 0 0 0 0 var(--color-ink);
+    transform: translate(1px, 1px);
+  }
 }
 
 /* Buttons and chips: a 1px press, no lift. */
 @utility pressable {
-  transition: transform 120ms var(--ease-snap), background-color 120ms var(--ease-snap),
+  transition:
+    transform 120ms var(--ease-snap),
+    background-color 120ms var(--ease-snap),
     border-color 120ms var(--ease-snap);
-  &:active:not(:disabled) { transform: translateY(1px); }
+  &:active:not(:disabled) {
+    transform: translateY(1px);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { transition-duration: 0ms !important; animation-duration: 0ms !important; }
-  .box-interactive:hover, .box-interactive:active, .pressable:active { transform: none; }
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0ms !important;
+    animation-duration: 0ms !important;
+  }
+  .box-interactive:hover,
+  .box-interactive:active,
+  .pressable:active {
+    transform: none;
+  }
 }

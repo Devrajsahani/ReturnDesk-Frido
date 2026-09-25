@@ -9,7 +9,7 @@ export class ApiClientError extends Error {
     status: number,
     code: ErrorCode | "UNKNOWN_ERROR",
     message: string,
-    details?: ErrorDetails
+    details?: ErrorDetails,
   ) {
     super(message);
     this.name = "ApiClientError";
@@ -19,10 +19,7 @@ export class ApiClientError extends Error {
   }
 }
 
-export async function apiFetch<T>(
-  url: string,
-  options?: RequestInit
-): Promise<T> {
+export async function apiFetch<T>(url: string, options?: RequestInit): Promise<T> {
   try {
     const res = await fetch(url, {
       ...options,
@@ -47,14 +44,14 @@ export async function apiFetch<T>(
             res.status,
             payload.error.code ?? "UNKNOWN_ERROR",
             payload.error.message || "An unexpected error occurred",
-            payload.error.details
+            payload.error.details,
           );
         }
       }
       throw new ApiClientError(
         res.status,
         "UNKNOWN_ERROR",
-        res.statusText || `Request failed with status ${res.status}`
+        res.statusText || `Request failed with status ${res.status}`,
       );
     }
 
@@ -66,7 +63,9 @@ export async function apiFetch<T>(
   } catch (err: unknown) {
     // AbortError passes through untouched
     if (
-      (typeof DOMException !== "undefined" && err instanceof DOMException && err.name === "AbortError") ||
+      (typeof DOMException !== "undefined" &&
+        err instanceof DOMException &&
+        err.name === "AbortError") ||
       (err instanceof Error && err.name === "AbortError")
     ) {
       throw err;
@@ -78,7 +77,7 @@ export async function apiFetch<T>(
     throw new ApiClientError(
       0,
       "UNKNOWN_ERROR",
-      "Couldn't reach the server. Check your connection and try again."
+      "Couldn't reach the server. Check your connection and try again.",
     );
   }
 }

@@ -1,7 +1,6 @@
 import React, { forwardRef, useId } from "react";
 
-export interface TextareaProps
-  extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
+export interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
   label?: string;
   error?: string;
   hint?: string;
@@ -17,10 +16,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
     return (
       <div className="w-full">
         {label && (
-          <label
-            htmlFor={textareaId}
-            className="block text-sm font-medium text-ink mb-1.5"
-          >
+          <label htmlFor={textareaId} className="block text-sm font-medium text-ink mb-1.5">
             {label}
           </label>
         )}
@@ -29,9 +25,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
           id={textareaId}
           rows={rows}
           aria-invalid={Boolean(error)}
-          aria-describedby={
-            error ? errorId : hint ? hintId : undefined
-          }
+          aria-describedby={error ? errorId : hint ? hintId : undefined}
           className={`w-full px-3 py-2 text-sm font-sans text-ink bg-paper border rounded-control transition-colors duration-120 ease-snap placeholder:text-graphite/60 disabled:opacity-50 disabled:cursor-not-allowed ${
             error
               ? "border-danger focus:border-danger"
@@ -51,7 +45,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
         )}
       </div>
     );
-  }
+  },
 );
 
 Textarea.displayName = "Textarea";

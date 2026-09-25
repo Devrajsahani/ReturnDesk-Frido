@@ -40,12 +40,7 @@ export function LifecycleTrack({ status }: LifecycleTrackProps) {
       <div
         className={`flex items-center justify-center gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm rounded-control select-none transition-colors duration-180 ease-snap ${classes}`}
       >
-        {state === "past" && (
-          <span
-            aria-hidden="true"
-            className="size-2 bg-ink shrink-0"
-          />
-        )}
+        {state === "past" && <span aria-hidden="true" className="size-2 bg-ink shrink-0" />}
         <span>{label}</span>
       </div>
     );
@@ -53,9 +48,7 @@ export function LifecycleTrack({ status }: LifecycleTrackProps) {
 
   return (
     <div className="box p-4 sm:p-5">
-      <span className="text-xs font-medium text-graphite block mb-3">
-        Lifecycle
-      </span>
+      <span className="text-xs font-medium text-graphite block mb-3">Lifecycle</span>
 
       {/* Desktop Track (>= 640px) */}
       <div className="hidden sm:block">

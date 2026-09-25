@@ -23,11 +23,7 @@ interface DetailApiResponse {
   data: ReturnRequestDetail;
 }
 
-export default function RequestDetailPage({
-  params,
-}: {
-  params: Promise<{ reference: string }>;
-}) {
+export default function RequestDetailPage({ params }: { params: Promise<{ reference: string }> }) {
   const { reference } = use(params);
   const { showToast } = useToast();
 
@@ -57,7 +53,7 @@ export default function RequestDetailPage({
     async function loadData() {
       try {
         const res = await apiFetch<DetailApiResponse>(
-          `/api/requests/${encodeURIComponent(reference)}`
+          `/api/requests/${encodeURIComponent(reference)}`,
         );
         if (!ignore) {
           setRequest(res.data);
@@ -185,7 +181,7 @@ export default function RequestDetailPage({
           className={isMobile ? "w-full" : ""}
         >
           Start review
-        </Button>
+        </Button>,
       );
     }
 
@@ -199,7 +195,7 @@ export default function RequestDetailPage({
           className={isMobile ? "w-full" : ""}
         >
           Approve…
-        </Button>
+        </Button>,
       );
     }
 
@@ -213,7 +209,7 @@ export default function RequestDetailPage({
           className={isMobile ? "w-full" : ""}
         >
           Reject
-        </Button>
+        </Button>,
       );
     }
 
@@ -228,7 +224,7 @@ export default function RequestDetailPage({
           className={isMobile ? "w-full" : ""}
         >
           Mark completed
-        </Button>
+        </Button>,
       );
     }
 
@@ -242,7 +238,7 @@ export default function RequestDetailPage({
           className={isMobile ? "w-full" : ""}
         >
           Remove from desk
-        </Button>
+        </Button>,
       );
     }
 
@@ -265,13 +261,7 @@ export default function RequestDetailPage({
       </div>
 
       {/* Action Error Banner */}
-      {actionError && (
-        <Banner
-          variant="danger"
-          title="Action failed"
-          message={actionError}
-        />
-      )}
+      {actionError && <Banner variant="danger" title="Action failed" message={actionError} />}
 
       {/* Header: ReferenceTag (lg), StatusBadge & Desktop Actions */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -281,9 +271,7 @@ export default function RequestDetailPage({
         </div>
 
         {/* Desktop actions: Right-aligned buttons */}
-        <div className="hidden lg:flex items-center gap-3">
-          {actionButtons}
-        </div>
+        <div className="hidden lg:flex items-center gap-3">{actionButtons}</div>
       </div>
 
       {/* Lifecycle Track */}
@@ -291,19 +279,14 @@ export default function RequestDetailPage({
 
       {/* Mobile/Tablet Actions: Stacked full-width buttons below 1024px */}
       {mobileActionButtons.length > 0 && (
-        <div className="lg:hidden flex flex-col gap-2.5">
-          {mobileActionButtons}
-        </div>
+        <div className="lg:hidden flex flex-col gap-2.5">{mobileActionButtons}</div>
       )}
 
       {/* Two Columns (5 / 7) at >= 1024px; Stacked below */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Left Column (5/12): Request Details */}
         <div className="lg:col-span-5">
-          <RequestDetailsCard
-            request={request}
-            canEdit={allowedActions.canEdit}
-          />
+          <RequestDetailsCard request={request} canEdit={allowedActions.canEdit} />
         </div>
 
         {/* Right Column (7/12): Notes & Add Note */}

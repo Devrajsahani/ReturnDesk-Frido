@@ -79,9 +79,7 @@ export function NotesCard({ reference, notes, onNoteAdded }: NotesCardProps) {
   return (
     <div className="box p-5 space-y-5">
       <div className="flex items-center justify-between border-b border-hairline pb-3">
-        <h2 className="font-display font-semibold text-base text-ink">
-          Notes
-        </h2>
+        <h2 className="font-display font-semibold text-base text-ink">Notes</h2>
         <span className="text-xs text-graphite font-sans tabular-nums">
           {notes.length} {notes.length === 1 ? "note" : "notes"}
         </span>
@@ -90,9 +88,7 @@ export function NotesCard({ reference, notes, onNoteAdded }: NotesCardProps) {
       {/* Notes List (Oldest First) */}
       <div className="space-y-3">
         {notes.length === 0 ? (
-          <p className="text-xs text-graphite italic py-2">
-            No notes recorded yet.
-          </p>
+          <p className="text-xs text-graphite italic py-2">No notes recorded yet.</p>
         ) : (
           <div className="divide-y divide-hairline">
             {notes.map((note) => (
@@ -103,9 +99,7 @@ export function NotesCard({ reference, notes, onNoteAdded }: NotesCardProps) {
                     {formatDateTime(note.createdAt)}
                   </span>
                 </div>
-                <p className="text-sm text-ink whitespace-pre-wrap leading-relaxed">
-                  {note.body}
-                </p>
+                <p className="text-sm text-ink whitespace-pre-wrap leading-relaxed">{note.body}</p>
               </div>
             ))}
           </div>
@@ -114,16 +108,9 @@ export function NotesCard({ reference, notes, onNoteAdded }: NotesCardProps) {
 
       {/* Add Note Form */}
       <form onSubmit={handleSubmit} className="pt-4 border-t border-hairline space-y-3">
-        <h3 className="text-xs font-semibold text-graphite">
-          Add a note
-        </h3>
+        <h3 className="text-xs font-semibold text-graphite">Add a note</h3>
 
-        {error && (
-          <Banner
-            variant="danger"
-            message={error}
-          />
-        )}
+        {error && <Banner variant="danger" message={error} />}
 
         <Textarea
           placeholder="Write a note about this customer request..."
@@ -142,12 +129,7 @@ export function NotesCard({ reference, notes, onNoteAdded }: NotesCardProps) {
               aria-label="Your name"
             />
           </div>
-          <Button
-            type="submit"
-            variant="secondary"
-            loading={isSubmitting}
-            disabled={isSubmitting}
-          >
+          <Button type="submit" variant="secondary" loading={isSubmitting} disabled={isSubmitting}>
             Add note
           </Button>
         </div>

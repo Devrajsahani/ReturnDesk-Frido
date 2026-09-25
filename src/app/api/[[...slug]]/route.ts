@@ -11,7 +11,7 @@ function notFound(): NextResponse<ErrorEnvelope> {
         message: "API endpoint not found",
       },
     },
-    { status: 404 }
+    { status: 404 },
   );
 }
 

@@ -54,9 +54,7 @@ export function DeskTable({ requests }: DeskTableProps) {
                 <td className="px-4 py-2 font-medium text-ink whitespace-nowrap">
                   {req.customerName}
                 </td>
-                <td className="px-4 py-2 text-graphite whitespace-nowrap">
-                  {req.orderNumber}
-                </td>
+                <td className="px-4 py-2 text-graphite whitespace-nowrap">{req.orderNumber}</td>
                 <td className="px-4 py-2 text-ink max-w-xs truncate">
                   {req.itemName}
                   {req.quantity > 1 ? ` x${req.quantity}` : " x1"}

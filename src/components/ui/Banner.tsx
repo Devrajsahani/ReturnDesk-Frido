@@ -35,12 +35,8 @@ export function Banner({
       className={`box p-3.5 flex items-start justify-between gap-3 text-left ${variantClasses} ${className}`}
     >
       <div className="flex-1">
-        {title && (
-          <h4 className="font-sans font-medium text-sm text-ink">{title}</h4>
-        )}
-        <div className={`font-sans text-xs text-ink/90 ${title ? "mt-0.5" : ""}`}>
-          {message}
-        </div>
+        {title && <h4 className="font-sans font-medium text-sm text-ink">{title}</h4>}
+        <div className={`font-sans text-xs text-ink/90 ${title ? "mt-0.5" : ""}`}>{message}</div>
       </div>
       {actionLabel && onAction && (
         <Button

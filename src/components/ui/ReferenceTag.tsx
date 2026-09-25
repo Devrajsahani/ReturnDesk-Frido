@@ -6,11 +6,7 @@ export interface ReferenceTagProps {
   className?: string;
 }
 
-export function ReferenceTag({
-  reference,
-  size = "default",
-  className = "",
-}: ReferenceTagProps) {
+export function ReferenceTag({ reference, size = "default", className = "" }: ReferenceTagProps) {
   if (size === "lg") {
     return (
       <span

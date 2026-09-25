@@ -23,11 +23,7 @@ export const metadata: Metadata = {
   description: "Frido return & exchange desk",
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${plexSans.variable} ${outfit.variable}`}>
       <body className="min-h-screen bg-canvas text-ink font-sans antialiased">

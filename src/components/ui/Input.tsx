@@ -1,7 +1,6 @@
 import React, { forwardRef, useId } from "react";
 
-export interface InputProps
-  extends React.InputHTMLAttributes<HTMLInputElement> {
+export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   error?: string;
   hint?: string;
@@ -17,10 +16,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     return (
       <div className="w-full">
         {label && (
-          <label
-            htmlFor={inputId}
-            className="block text-sm font-medium text-ink mb-1.5"
-          >
+          <label htmlFor={inputId} className="block text-sm font-medium text-ink mb-1.5">
             {label}
           </label>
         )}
@@ -28,9 +24,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           ref={ref}
           id={inputId}
           aria-invalid={Boolean(error)}
-          aria-describedby={
-            error ? errorId : hint ? hintId : undefined
-          }
+          aria-describedby={error ? errorId : hint ? hintId : undefined}
           className={`w-full h-10 px-3 text-sm font-sans text-ink bg-paper border rounded-control transition-colors duration-120 ease-snap placeholder:text-graphite/60 disabled:opacity-50 disabled:cursor-not-allowed ${
             error
               ? "border-danger focus:border-danger"
@@ -50,7 +44,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         )}
       </div>
     );
-  }
+  },
 );
 
 Input.displayName = "Input";
