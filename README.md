@@ -1,5 +1,7 @@
 # ReturnDesk
 
+![CI](https://github.com/Devrajsahani/ReturnDesk-Frido/actions/workflows/ci.yml/badge.svg)
+
 A returns desk for a small online store. When a customer wants to return or replace something, a support agent raises a request, reviews it, approves or rejects it, records the outcome (refund, replacement or store credit), keeps notes along the way and closes it out.
 
 - **Live app:** https://return-desk-frido.vercel.app
@@ -77,7 +79,7 @@ Some notes:
 - `db:seed` wipes and reloads the two tables every time it runs, and the references restart at `RD-00001`. It refuses to run when `NODE_ENV=production` unless you pass `--force`.
 - `db:migrate` records applied files in a `schema_migrations` table, so it's safe to run again.
 
-Other scripts: `npm run lint`, `npm run typecheck`, `npm run build`, and `npm run format` (Prettier).
+Other scripts: `npm run lint`, `npm run typecheck`, `npm test`, `npm run build`, and `npm run format` (Prettier).
 
 ---
 
@@ -164,7 +166,7 @@ Where the brief left something open, I made these choices:
 
 ## Not done yet, and what I'd do next
 
-- **Automated tests.** I checked the rules by calling the API directly (the curl examples in `docs/API.md`), but there's no test suite or CI yet. Next I'd add integration tests against a separate database, one group per rule, and run them in GitHub Actions.
+- **Integration tests.** Unit tests cover the lifecycle rules and every input validation rule (`npm test`), and run in GitHub Actions on each push. The HTTP behaviour and database constraints were checked with the curl examples in `docs/API.md`. Next step is integration tests against a separate database, one group per rule, running each rule end to end.
 - **Search at scale.** `ILIKE '%…%'` can't use a normal index, which is fine at this size. With a lot of data, I'd add `pg_trgm` indexes and measure with `EXPLAIN ANALYZE`. Pagination uses `OFFSET`, which I'd switch to keyset pagination for very deep pages.
 - **A history of status changes.** The app records when a request was decided, but not a full log of who changed what and when. An append-only events table shown next to the notes would be the next step.
 - **Conflicting edits.** Row locks keep writes consistent, but an agent looking at a stale page isn't warned before acting. An `If-Match` / `ETag` check would fix that.
