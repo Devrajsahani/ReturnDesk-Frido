@@ -1,5 +1,11 @@
 import { Client } from "pg";
-import { REASONS, STATUSES, type RequestResolution, type RequestStatus, type ReturnReason } from "../src/lib/domain/constants";
+import {
+  REASONS,
+  STATUSES,
+  type RequestResolution,
+  type RequestStatus,
+  type ReturnReason,
+} from "../src/lib/domain/constants";
 import { getDatabaseUrl } from "../src/lib/env";
 
 interface SeedRequest {
@@ -33,7 +39,6 @@ function addHours(base: Date, hours: number): Date {
 // 36 total requests: 34 visible + 2 soft-deleted
 // Covers all 25 (status x reason) combinations among visible rows
 const SEED_DATA: SeedRequest[] = [
-  // --- 25 STATUS x REASON COMBINATIONS (all visible) ---
   // 1. open x damaged
   {
     customerName: "Aarav Sharma",
@@ -49,7 +54,11 @@ const SEED_DATA: SeedRequest[] = [
     refundAmount: null,
     daysAgo: 5,
     notes: [
-      { author: "Pooja Sharma", body: "Customer raised request stating bottom seam was ripped upon unboxing.", hoursAfter: 2 },
+      {
+        author: "Pooja Sharma",
+        body: "Customer raised request stating bottom seam was ripped upon unboxing.",
+        hoursAfter: 2,
+      },
     ],
   },
   // 2. open x wrong_item
@@ -82,7 +91,11 @@ const SEED_DATA: SeedRequest[] = [
     refundAmount: null,
     daysAgo: 3,
     notes: [
-      { author: "Karan Verma", body: "Waist sizing is tighter than standard size chart. Customer requesting size 34.", hoursAfter: 1 },
+      {
+        author: "Karan Verma",
+        body: "Waist sizing is tighter than standard size chart. Customer requesting size 34.",
+        hoursAfter: 1,
+      },
     ],
   },
   // 4. open x not_as_described
@@ -131,8 +144,16 @@ const SEED_DATA: SeedRequest[] = [
     refundAmount: null,
     daysAgo: 12,
     notes: [
-      { author: "Vikram Support", body: "Customer shared parcel photos showing deep dent on bottle base.", hoursAfter: 4 },
-      { author: "Vikram Support", body: "Moving to in_review to verify transit damage claim with carrier.", hoursAfter: 6 },
+      {
+        author: "Rakesh Sinha",
+        body: "Customer shared parcel photos showing deep dent on bottle base.",
+        hoursAfter: 4,
+      },
+      {
+        author: "Rakesh Sinha",
+        body: "Moved to review to verify transit damage claim with carrier.",
+        hoursAfter: 6,
+      },
     ],
   },
   // 7. in_review x wrong_item
@@ -150,7 +171,11 @@ const SEED_DATA: SeedRequest[] = [
     refundAmount: null,
     daysAgo: 10,
     notes: [
-      { author: "Sneha Nair", body: "Received wired version instead of wireless SKU. Checking packing slip.", hoursAfter: 3 },
+      {
+        author: "Sneha Nair",
+        body: "Received wired version instead of wireless SKU. Checking packing slip.",
+        hoursAfter: 3,
+      },
     ],
   },
   // 8. in_review x size_issue
@@ -183,7 +208,11 @@ const SEED_DATA: SeedRequest[] = [
     refundAmount: null,
     daysAgo: 8,
     notes: [
-      { author: "Pooja Sharma", body: "Customer claims fabric is canvas, not ballistic nylon as listed.", hoursAfter: 5 },
+      {
+        author: "Pooja Sharma",
+        body: "Customer claims fabric is canvas, not ballistic nylon as listed.",
+        hoursAfter: 5,
+      },
     ],
   },
   // 10. in_review x changed_mind
@@ -218,8 +247,16 @@ const SEED_DATA: SeedRequest[] = [
     daysAgo: 20,
     decisionHoursAfter: 12,
     notes: [
-      { author: "Karan Verma", body: "Glass face shattered during delivery. Verified with packaging photos.", hoursAfter: 3 },
-      { author: "Karan Verma", body: "Approved for full refund. Forwarded to finance.", hoursAfter: 12 },
+      {
+        author: "Karan Verma",
+        body: "Glass face shattered during delivery. Verified with packaging photos.",
+        hoursAfter: 3,
+      },
+      {
+        author: "Karan Verma",
+        body: "Approved for full refund. Forwarded to finance.",
+        hoursAfter: 12,
+      },
     ],
   },
   // 12. approved x wrong_item (replacement)
@@ -238,7 +275,11 @@ const SEED_DATA: SeedRequest[] = [
     daysAgo: 18,
     decisionHoursAfter: 8,
     notes: [
-      { author: "Sneha Nair", body: "Customer received iPhone 15 Pro case instead. Dispatching correct model.", hoursAfter: 8 },
+      {
+        author: "Sneha Nair",
+        body: "Customer received iPhone 15 Pro case instead. Dispatching correct model.",
+        hoursAfter: 8,
+      },
     ],
   },
   // 13. approved x size_issue (replacement)
@@ -273,8 +314,12 @@ const SEED_DATA: SeedRequest[] = [
     daysAgo: 15,
     decisionHoursAfter: 20,
     notes: [
-      { author: "Vikram Support", body: "Stand lacks 360 swivel advertised in batch 2 specifications.", hoursAfter: 10 },
-      { author: "Vikram Support", body: "Approved refund. Return pickup scheduled.", hoursAfter: 20 },
+      {
+        author: "Rakesh Sinha",
+        body: "Stand lacks 360 swivel advertised in batch 2 specifications.",
+        hoursAfter: 10,
+      },
+      { author: "Rakesh Sinha", body: "Approved refund. Return pickup scheduled.", hoursAfter: 20 },
     ],
   },
   // 15. approved x changed_mind (store_credit)
@@ -293,14 +338,18 @@ const SEED_DATA: SeedRequest[] = [
     daysAgo: 14,
     decisionHoursAfter: 10,
     notes: [
-      { author: "Pooja Sharma", body: "Customer agreed to store credit voucher code.", hoursAfter: 10 },
+      {
+        author: "Pooja Sharma",
+        body: "Customer agreed to store credit voucher code.",
+        hoursAfter: 10,
+      },
     ],
   },
 
   // 16. rejected x damaged
   {
-    customerName: "Shreya Ghoshal",
-    customerEmail: "shreya.g@example.in",
+    customerName: "Nandini Sen",
+    customerEmail: "nandini.sen@example.in",
     customerPhone: "+91 98200 99887",
     orderNumber: "ORD-10416",
     itemSku: "SKU-SUNGLASS-AVTR",
@@ -313,8 +362,16 @@ const SEED_DATA: SeedRequest[] = [
     daysAgo: 35,
     decisionHoursAfter: 24,
     notes: [
-      { author: "Karan Verma", body: "Photographs reveal scratches caused by accidental drop, not transit defect.", hoursAfter: 18 },
-      { author: "Karan Verma", body: "Rejection communicated to customer citing warranty terms.", hoursAfter: 24 },
+      {
+        author: "Karan Verma",
+        body: "Photographs reveal scratches caused by accidental drop, not transit defect.",
+        hoursAfter: 18,
+      },
+      {
+        author: "Karan Verma",
+        body: "Rejection communicated to customer citing warranty terms.",
+        hoursAfter: 24,
+      },
     ],
   },
   // 17. rejected x wrong_item
@@ -333,13 +390,17 @@ const SEED_DATA: SeedRequest[] = [
     daysAgo: 32,
     decisionHoursAfter: 16,
     notes: [
-      { author: "Sneha Nair", body: "Checked warehouse scan log: barcode matched order exactly. Customer confirmed error on their end.", hoursAfter: 16 },
+      {
+        author: "Sneha Nair",
+        body: "Checked warehouse scan log: barcode matched order exactly. Customer confirmed error on their end.",
+        hoursAfter: 16,
+      },
     ],
   },
   // 18. rejected x size_issue
   {
-    customerName: "Deepika Padukone",
-    customerEmail: "deepika.p@example.in",
+    customerName: "Pallavi Deshpande",
+    customerEmail: "pallavi.d@example.in",
     customerPhone: "+91 98210 55667",
     orderNumber: "ORD-10418",
     itemSku: "SKU-BELT-LTHR-34",
@@ -354,8 +415,8 @@ const SEED_DATA: SeedRequest[] = [
   },
   // 19. rejected x not_as_described
   {
-    customerName: "Manish Malhotra",
-    customerEmail: "manish.m@example.com",
+    customerName: "Alok Mathur",
+    customerEmail: "alok.mathur@example.com",
     customerPhone: null,
     orderNumber: "ORD-10419",
     itemSku: "SKU-DIFFUSER-CER",
@@ -370,8 +431,8 @@ const SEED_DATA: SeedRequest[] = [
   },
   // 20. rejected x changed_mind (RULE-3 SHOWCASE PART 1)
   {
-    customerName: "Aditi Rao",
-    customerEmail: "aditi.rao@example.in",
+    customerName: "Ritika Bansal",
+    customerEmail: "ritika.b@example.in",
     customerPhone: "+91 98190 77889",
     orderNumber: "ORD-10421",
     itemSku: "SKU-CUSH-BLK-M",
@@ -384,8 +445,16 @@ const SEED_DATA: SeedRequest[] = [
     daysAgo: 45,
     decisionHoursAfter: 36,
     notes: [
-      { author: "Vikram Support", body: "Return initiated 40 days after delivery; exceeds 30-day policy window.", hoursAfter: 20 },
-      { author: "Vikram Support", body: "Request rejected due to return window expiration.", hoursAfter: 36 },
+      {
+        author: "Rakesh Sinha",
+        body: "Return initiated 40 days after delivery; exceeds 30-day policy window.",
+        hoursAfter: 20,
+      },
+      {
+        author: "Rakesh Sinha",
+        body: "Request rejected due to return window expiration.",
+        hoursAfter: 36,
+      },
     ],
   },
 
@@ -407,7 +476,11 @@ const SEED_DATA: SeedRequest[] = [
     notes: [
       { author: "Karan Verma", body: "Transit damage confirmed.", hoursAfter: 12 },
       { author: "Karan Verma", body: "Approved full refund.", hoursAfter: 18 },
-      { author: "Finance System", body: "Refund transaction REF-9901 settled to customer bank account.", hoursAfter: 48 },
+      {
+        author: "Pooja Sharma",
+        body: "Refund transaction REF-9901 settled to customer bank account.",
+        hoursAfter: 48,
+      },
     ],
   },
   // 22. completed x wrong_item (replacement)
@@ -426,13 +499,17 @@ const SEED_DATA: SeedRequest[] = [
     daysAgo: 48,
     decisionHoursAfter: 14,
     notes: [
-      { author: "Sneha Nair", body: "Replacement order AWB-778891 delivered and acknowledged by customer.", hoursAfter: 60 },
+      {
+        author: "Sneha Nair",
+        body: "Replacement order AWB-778891 delivered and acknowledged by customer.",
+        hoursAfter: 60,
+      },
     ],
   },
   // 23. completed x size_issue (store_credit)
   {
-    customerName: "Varun Dhawan",
-    customerEmail: "varun.d@example.com",
+    customerName: "Chirag Shah",
+    customerEmail: "chirag.shah@example.com",
     customerPhone: "+91 98202 33445",
     orderNumber: "ORD-10424",
     itemSku: "SKU-PULLOVER-WOL",
@@ -445,13 +522,17 @@ const SEED_DATA: SeedRequest[] = [
     daysAgo: 46,
     decisionHoursAfter: 16,
     notes: [
-      { author: "Pooja Sharma", body: "Store credit voucher CRED-10424 sent to customer email.", hoursAfter: 20 },
+      {
+        author: "Pooja Sharma",
+        body: "Store credit voucher CRED-10424 sent to customer email.",
+        hoursAfter: 20,
+      },
     ],
   },
   // 24. completed x not_as_described (refund)
   {
-    customerName: "Ishaan Khatter",
-    customerEmail: "ishaan.k@example.in",
+    customerName: "Tarun Bhatnagar",
+    customerEmail: "tarun.b@example.in",
     customerPhone: null,
     orderNumber: "ORD-10425",
     itemSku: "SKU-SPEAKER-PORT",
@@ -464,14 +545,18 @@ const SEED_DATA: SeedRequest[] = [
     daysAgo: 42,
     decisionHoursAfter: 22,
     notes: [
-      { author: "Vikram Support", body: "Battery capacity measured at 500mAh instead of 1200mAh claim.", hoursAfter: 15 },
-      { author: "Finance System", body: "Refund processed successfully.", hoursAfter: 50 },
+      {
+        author: "Rakesh Sinha",
+        body: "Battery capacity measured at 500mAh instead of 1200mAh claim.",
+        hoursAfter: 15,
+      },
+      { author: "Karan Verma", body: "Refund processed successfully.", hoursAfter: 50 },
     ],
   },
   // 25. completed x changed_mind (store_credit)
   {
-    customerName: "Kriti Sanon",
-    customerEmail: "kriti.s@example.com",
+    customerName: "Divya Madhavan",
+    customerEmail: "divya.m@example.com",
     customerPhone: "+91 98112 66778",
     orderNumber: "ORD-10426",
     itemSku: "SKU-BLANKET-THR",
@@ -485,11 +570,10 @@ const SEED_DATA: SeedRequest[] = [
     decisionHoursAfter: 12,
   },
 
-  // --- 9 ADDITIONAL VISIBLE ROWS (to reach 34 visible rows) ---
   // 26. open x wrong_item (RULE-3 SHOWCASE PART 2 - Same order+sku as row 20)
   {
-    customerName: "Aditi Rao",
-    customerEmail: "aditi.rao@example.in",
+    customerName: "Ritika Bansal",
+    customerEmail: "ritika.b@example.in",
     customerPhone: "+91 98190 77889",
     orderNumber: "ORD-10421",
     itemSku: "SKU-CUSH-BLK-M",
@@ -501,13 +585,17 @@ const SEED_DATA: SeedRequest[] = [
     refundAmount: null,
     daysAgo: 6,
     notes: [
-      { author: "Pooja Sharma", body: "Customer raised legitimate new request for wrong firmness delivered. Rule 3 permits this since earlier ticket was rejected.", hoursAfter: 1 },
+      {
+        author: "Pooja Sharma",
+        body: "Customer raised legitimate new request for wrong firmness delivered. Rule 3 permits this since earlier ticket was rejected.",
+        hoursAfter: 1,
+      },
     ],
   },
   // 27. open x damaged
   {
-    customerName: "Sanjay Singhania",
-    customerEmail: "sanjay.s@example.in",
+    customerName: "Sameer Saxena",
+    customerEmail: "sameer.s@example.in",
     customerPhone: "+91 98401 22334",
     orderNumber: "ORD-10427",
     itemSku: "SKU-KETTLE-ELEC",
@@ -521,8 +609,8 @@ const SEED_DATA: SeedRequest[] = [
   },
   // 28. open x size_issue
   {
-    customerName: "Anupam Kher",
-    customerEmail: "anupam.kher@example.com",
+    customerName: "Harish Chandra",
+    customerEmail: "harish.c@example.com",
     customerPhone: "+91 98203 11223",
     orderNumber: "ORD-10428",
     itemSku: "SKU-GLOVES-LTHR-L",
@@ -536,8 +624,8 @@ const SEED_DATA: SeedRequest[] = [
   },
   // 29. in_review x damaged
   {
-    customerName: "Kavita Krishnamurthy",
-    customerEmail: "kavita.k@example.in",
+    customerName: "Shalini Hegde",
+    customerEmail: "shalini.h@example.in",
     customerPhone: "+91 98451 99887",
     orderNumber: "ORD-10429",
     itemSku: "SKU-MIRROR-COMPACT",
@@ -549,13 +637,17 @@ const SEED_DATA: SeedRequest[] = [
     refundAmount: null,
     daysAgo: 11,
     notes: [
-      { author: "Karan Verma", body: "Hinge arrived broken. Verified inspection report.", hoursAfter: 5 },
+      {
+        author: "Karan Verma",
+        body: "Hinge arrived broken. Verified inspection report.",
+        hoursAfter: 5,
+      },
     ],
   },
   // 30. in_review x not_as_described
   {
-    customerName: "Rajkummar Rao",
-    customerEmail: "rajkummar.r@example.com",
+    customerName: "Pradeep Ranganathan",
+    customerEmail: "pradeep.r@example.com",
     customerPhone: "+91 98113 44556",
     orderNumber: "ORD-10430",
     itemSku: "SKU-PLANTER-TERRA",
@@ -569,8 +661,8 @@ const SEED_DATA: SeedRequest[] = [
   },
   // 31. approved x damaged (refund)
   {
-    customerName: "Sunidhi Chauhan",
-    customerEmail: "sunidhi.c@example.in",
+    customerName: "Leela Nambiar",
+    customerEmail: "leela.n@example.in",
     customerPhone: "+91 98211 77889",
     orderNumber: "ORD-10431",
     itemSku: "SKU-BLENDER-PRT",
@@ -583,13 +675,17 @@ const SEED_DATA: SeedRequest[] = [
     daysAgo: 22,
     decisionHoursAfter: 18,
     notes: [
-      { author: "Sneha Nair", body: "Motor arrived non-functional. Full refund approved.", hoursAfter: 18 },
+      {
+        author: "Sneha Nair",
+        body: "Motor arrived non-functional. Full refund approved.",
+        hoursAfter: 18,
+      },
     ],
   },
   // 32. approved x changed_mind (store_credit)
   {
-    customerName: "Ayushmann Khurrana",
-    customerEmail: "ayushmann.k@example.com",
+    customerName: "Abhinav Shukla",
+    customerEmail: "abhinav.s@example.com",
     customerPhone: null,
     orderNumber: "ORD-10432",
     itemSku: "SKU-NOTEBOOK-A5",
@@ -604,8 +700,8 @@ const SEED_DATA: SeedRequest[] = [
   },
   // 33. rejected x size_issue
   {
-    customerName: "Taapsee Pannu",
-    customerEmail: "taapsee.p@example.in",
+    customerName: "Geeta Krishnan",
+    customerEmail: "geeta.k@example.in",
     customerPhone: "+91 98222 33445",
     orderNumber: "ORD-10433",
     itemSku: "SKU-SLIPPERS-SHP",
@@ -618,13 +714,17 @@ const SEED_DATA: SeedRequest[] = [
     daysAgo: 29,
     decisionHoursAfter: 20,
     notes: [
-      { author: "Vikram Support", body: "Soles show heavy outdoor wear; return rejected as item is not in resalable condition.", hoursAfter: 20 },
+      {
+        author: "Rakesh Sinha",
+        body: "Soles show heavy outdoor wear; return rejected as item is not in resalable condition.",
+        hoursAfter: 20,
+      },
     ],
   },
   // 34. completed x damaged (refund)
   {
-    customerName: "Boman Irani",
-    customerEmail: "boman.irani@example.com",
+    customerName: "Bhavesh Parekh",
+    customerEmail: "bhavesh.p@example.com",
     customerPhone: "+91 98204 55667",
     orderNumber: "ORD-10434",
     itemSku: "SKU-FRAME-OAK-A3",
@@ -637,15 +737,18 @@ const SEED_DATA: SeedRequest[] = [
     daysAgo: 52,
     decisionHoursAfter: 16,
     notes: [
-      { author: "Pooja Sharma", body: "Corner joint split during transport. Refund processed.", hoursAfter: 16 },
+      {
+        author: "Pooja Sharma",
+        body: "Corner joint split during transport. Refund processed.",
+        hoursAfter: 16,
+      },
     ],
   },
 
-  // --- 2 SOFT-DELETED EXTRAS (Total = 36) ---
   // 35. open x size_issue (soft-deleted)
   {
-    customerName: "Kunal Khemu",
-    customerEmail: "kunal.k@example.in",
+    customerName: "Manoj Kaushik",
+    customerEmail: "manoj.k@example.in",
     customerPhone: "+91 98114 88990",
     orderNumber: "ORD-10435",
     itemSku: "SKU-RING-SILVER",
@@ -658,13 +761,17 @@ const SEED_DATA: SeedRequest[] = [
     daysAgo: 25,
     softDeletedHoursAfter: 48,
     notes: [
-      { author: "Karan Verma", body: "Customer requested removal from desk; decided to gift it to a family member instead.", hoursAfter: 24 },
+      {
+        author: "Karan Verma",
+        body: "Customer requested removal from desk; decided to gift it to a family member instead.",
+        hoursAfter: 24,
+      },
     ],
   },
   // 36. rejected x damaged (soft-deleted)
   {
-    customerName: "Sanya Malhotra",
-    customerEmail: "sanya.m@example.com",
+    customerName: "Swati Chawla",
+    customerEmail: "swati.c@example.com",
     customerPhone: "+91 98452 33445",
     orderNumber: "ORD-10436",
     itemSku: "SKU-TEAPOT-CAST",
@@ -678,8 +785,16 @@ const SEED_DATA: SeedRequest[] = [
     decisionHoursAfter: 12,
     softDeletedHoursAfter: 24,
     notes: [
-      { author: "Vikram Support", body: "Damage caused by placing empty kettle on open flame.", hoursAfter: 8 },
-      { author: "Vikram Support", body: "Ticket closed and archived from desk view.", hoursAfter: 24 },
+      {
+        author: "Rakesh Sinha",
+        body: "Damage caused by placing empty kettle on open flame.",
+        hoursAfter: 8,
+      },
+      {
+        author: "Rakesh Sinha",
+        body: "Ticket closed and archived from desk view.",
+        hoursAfter: 24,
+      },
     ],
   },
 ];
@@ -700,7 +815,7 @@ async function seed() {
     for (const s of STATUSES) {
       for (const r of REASONS) {
         const found = SEED_DATA.some(
-          (d) => d.status === s && d.reason === r && d.softDeletedHoursAfter === undefined
+          (d) => d.status === s && d.reason === r && d.softDeletedHoursAfter === undefined,
         );
         if (!found) {
           throw new Error(`Missing visible seed request for ${s} x ${r}`);
@@ -717,9 +832,7 @@ async function seed() {
     for (const req of SEED_DATA) {
       const createdAt = subDays(now, req.daysAgo);
       const decidedAt =
-        req.decisionHoursAfter !== undefined
-          ? addHours(createdAt, req.decisionHoursAfter)
-          : null;
+        req.decisionHoursAfter !== undefined ? addHours(createdAt, req.decisionHoursAfter) : null;
       const deletedAt =
         req.softDeletedHoursAfter !== undefined
           ? addHours(decidedAt ?? createdAt, req.softDeletedHoursAfter)
@@ -764,7 +877,7 @@ async function seed() {
           updatedAt,
           decidedAt,
           deletedAt,
-        ]
+        ],
       );
 
       const requestId = insertRes.rows[0].id;
@@ -781,7 +894,7 @@ async function seed() {
               created_at
             ) VALUES ($1, $2, $3, $4)
             `,
-            [requestId, note.author, note.body, noteCreatedAt]
+            [requestId, note.author, note.body, noteCreatedAt],
           );
         }
       }
@@ -791,34 +904,38 @@ async function seed() {
 
     // Print verification metrics
     const totalCountRes = await client.query<{ count: string }>(
-      "SELECT count(*) FROM return_requests"
+      "SELECT count(*) FROM return_requests",
     );
     const visibleCountRes = await client.query<{ count: string }>(
-      "SELECT count(*) FROM return_requests WHERE deleted_at IS NULL"
+      "SELECT count(*) FROM return_requests WHERE deleted_at IS NULL",
     );
     const softDeletedCountRes = await client.query<{ count: string }>(
-      "SELECT count(*) FROM return_requests WHERE deleted_at IS NOT NULL"
+      "SELECT count(*) FROM return_requests WHERE deleted_at IS NOT NULL",
     );
     const refRangeRes = await client.query<{ first_ref: string; last_ref: string }>(
-      "SELECT min(reference) as first_ref, max(reference) as last_ref FROM return_requests"
+      "SELECT min(reference) as first_ref, max(reference) as last_ref FROM return_requests",
     );
     const statusCountsRes = await client.query<{ status: string; count: string }>(
-      `SELECT status, count(*) FROM return_requests WHERE deleted_at IS NULL GROUP BY status ORDER BY status`
+      `SELECT status, count(*) FROM return_requests WHERE deleted_at IS NULL GROUP BY status ORDER BY status`,
     );
     const reasonCountsRes = await client.query<{ reason: string; count: string }>(
-      `SELECT reason, count(*) FROM return_requests WHERE deleted_at IS NULL GROUP BY reason ORDER BY reason`
+      `SELECT reason, count(*) FROM return_requests WHERE deleted_at IS NULL GROUP BY reason ORDER BY reason`,
     );
 
     console.log("Database seeded successfully.");
-    console.log(`Total rows: ${totalCountRes.rows[0].count} (Visible: ${visibleCountRes.rows[0].count}, Soft-deleted: ${softDeletedCountRes.rows[0].count})`);
-    console.log(`Reference range: ${refRangeRes.rows[0].first_ref} .. ${refRangeRes.rows[0].last_ref}`);
+    console.log(
+      `Total rows: ${totalCountRes.rows[0].count} (Visible: ${visibleCountRes.rows[0].count}, Soft-deleted: ${softDeletedCountRes.rows[0].count})`,
+    );
+    console.log(
+      `Reference range: ${refRangeRes.rows[0].first_ref} .. ${refRangeRes.rows[0].last_ref}`,
+    );
 
     console.log("\nVisible counts per status:");
     console.table(
       statusCountsRes.rows.map((r) => ({
         status: r.status,
         count: Number(r.count),
-      }))
+      })),
     );
 
     console.log("Visible counts per reason:");
@@ -826,7 +943,7 @@ async function seed() {
       reasonCountsRes.rows.map((r) => ({
         reason: r.reason,
         count: Number(r.count),
-      }))
+      })),
     );
   } catch (error) {
     await client.query("ROLLBACK");
