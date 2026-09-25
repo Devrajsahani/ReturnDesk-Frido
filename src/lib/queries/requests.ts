@@ -81,6 +81,8 @@ export function buildWhereClause(filters: RequestFilterParams): {
 
   if (filters.q) {
     const escaped = `%${escapeIlike(filters.q)}%`;
+    // Leading-wildcard ILIKE can't use a btree index; fine at this size,
+    // pg_trgm GIN indexes would be the next step.
     conditions.push(
       `(reference ILIKE $${paramIndex} ESCAPE '\\' OR order_number ILIKE $${paramIndex} ESCAPE '\\' OR customer_name ILIKE $${paramIndex} ESCAPE '\\' OR customer_email ILIKE $${paramIndex} ESCAPE '\\')`,
     );
@@ -136,9 +138,6 @@ export async function findRequests(
   });
 
   const countSql = `SELECT count(*)::int as total FROM return_requests ${whereSql}`;
-  const countRows = await query<{ total: number }>(countSql, params);
-  const total = countRows[0]?.total ?? 0;
-  const totalPages = Math.ceil(total / input.pageSize);
 
   const sortCol = SORT_COLUMN_MAP[input.sort] ?? "created_at";
   const sortOrder = input.order === "asc" ? "ASC" : "DESC";
@@ -174,7 +173,13 @@ export async function findRequests(
     LIMIT $${limitIdx} OFFSET $${offsetIdx}
   `;
 
-  const rows = await query<RequestRow>(pageSql, pageParams);
+  const [countRows, rows] = await Promise.all([
+    query<{ total: number }>(countSql, params),
+    query<RequestRow>(pageSql, pageParams),
+  ]);
+
+  const total = countRows[0]?.total ?? 0;
+  const totalPages = Math.ceil(total / input.pageSize);
   const data = rows.map(mapRowToSummary);
 
   return {

@@ -31,6 +31,28 @@
   --shadow-lift: 3px 3px 0 0 var(--color-ink);
   --shadow-dialog: 4px 4px 0 0 var(--color-ink);
   --ease-snap: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  --animate-overlay-in: overlay-in 150ms var(--ease-snap);
+  --animate-dialog-in: dialog-in 180ms var(--ease-snap);
+}
+
+@keyframes overlay-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes dialog-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 @layer base {

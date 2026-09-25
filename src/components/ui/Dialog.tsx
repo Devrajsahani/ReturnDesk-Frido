@@ -91,12 +91,12 @@ export function Dialog({
       role="dialog"
       aria-modal="true"
       aria-labelledby={titleId}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink/40 animate-in fade-in duration-150 ease-snap"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink/40 animate-overlay-in"
     >
       <div
         ref={dialogRef}
         tabIndex={-1}
-        className={`box p-6 w-full max-w-[480px] shadow-dialog animate-in fade-in zoom-in-95 duration-180 ease-snap text-left relative focus:outline-none ${className}`}
+        className={`box p-6 w-full max-w-[480px] shadow-dialog animate-dialog-in text-left relative focus:outline-none ${className}`}
       >
         <div className="flex items-center justify-between mb-4">
           <h3 id={titleId} className="font-display font-semibold text-xl text-ink">
