@@ -60,34 +60,18 @@ export interface RequestFormProps {
   initialValues?: Partial<RequestFormData>;
 }
 
-export function RequestForm({
-  mode,
-  reference,
-  initialValues,
-}: RequestFormProps) {
+export function RequestForm({ mode, reference, initialValues }: RequestFormProps) {
   const router = useRouter();
   const { showToast } = useToast();
 
-  const [customerName, setCustomerName] = useState(
-    initialValues?.customerName ?? ""
-  );
-  const [customerEmail, setCustomerEmail] = useState(
-    initialValues?.customerEmail ?? ""
-  );
-  const [customerPhone, setCustomerPhone] = useState(
-    initialValues?.customerPhone ?? ""
-  );
-  const [orderNumber, setOrderNumber] = useState(
-    initialValues?.orderNumber ?? ""
-  );
+  const [customerName, setCustomerName] = useState(initialValues?.customerName ?? "");
+  const [customerEmail, setCustomerEmail] = useState(initialValues?.customerEmail ?? "");
+  const [customerPhone, setCustomerPhone] = useState(initialValues?.customerPhone ?? "");
+  const [orderNumber, setOrderNumber] = useState(initialValues?.orderNumber ?? "");
   const [itemSku, setItemSku] = useState(initialValues?.itemSku ?? "");
   const [itemName, setItemName] = useState(initialValues?.itemName ?? "");
-  const [quantity, setQuantity] = useState<number | string>(
-    initialValues?.quantity ?? 1
-  );
-  const [reason, setReason] = useState<ReturnReason>(
-    initialValues?.reason ?? "damaged"
-  );
+  const [quantity, setQuantity] = useState<number | string>(initialValues?.quantity ?? 1);
+  const [reason, setReason] = useState<ReturnReason>(initialValues?.reason ?? "damaged");
 
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [serverError, setServerError] = useState<string | null>(null);
@@ -111,7 +95,7 @@ export function RequestForm({
       reason,
     };
 
-    // Client-side validation using shared Zod schemas (zero duplicated rules)
+    // Client-side validation using shared Zod schemas
     if (mode === "create") {
       const parsed = createRequestSchema.safeParse(rawData);
       if (!parsed.success) {
@@ -143,8 +127,7 @@ export function RequestForm({
     setIsSubmitting(true);
 
     try {
-      const endpoint =
-        mode === "create" ? "/api/requests" : `/api/requests/${reference}`;
+      const endpoint = mode === "create" ? "/api/requests" : `/api/requests/${reference}`;
       const method = mode === "create" ? "POST" : "PATCH";
 
       const res = await fetch(endpoint, {
@@ -159,16 +142,11 @@ export function RequestForm({
         if (res.status === 422 && data.error?.details?.fields) {
           setFieldErrors(data.error.details.fields);
           setServerError(data.error.message || "Please correct the errors below.");
-        } else if (
-          res.status === 409 &&
-          data.error?.code === "DUPLICATE_LIVE_REQUEST"
-        ) {
+        } else if (res.status === 409 && data.error?.code === "DUPLICATE_LIVE_REQUEST") {
           setDuplicateRef(data.error.details?.existingReference ?? null);
           setServerError(data.error.message);
         } else {
-          setServerError(
-            data.error?.message || "An unexpected error occurred. Please try again."
-          );
+          setServerError(data.error?.message || "An unexpected error occurred. Please try again.");
         }
         return;
       }
@@ -188,8 +166,7 @@ export function RequestForm({
     }
   }
 
-  const cancelHref =
-    mode === "create" ? "/" : `/requests/${reference ?? ""}`;
+  const cancelHref = mode === "create" ? "/" : `/requests/${reference ?? ""}`;
 
   return (
     <form
@@ -218,16 +195,12 @@ export function RequestForm({
       )}
 
       {/* General Server Error Banner */}
-      {!duplicateRef && serverError && (
-        <Banner variant="danger" message={serverError} />
-      )}
+      {!duplicateRef && serverError && <Banner variant="danger" message={serverError} />}
 
       {/* Customer Section */}
       <div className="space-y-4">
         <div className="border-b border-hairline pb-2">
-          <h2 className="font-display font-semibold text-base text-ink">
-            Customer
-          </h2>
+          <h2 className="font-display font-semibold text-base text-ink">Customer</h2>
           <p className="font-sans text-xs text-graphite">
             Contact information for the customer requesting return
           </p>
@@ -265,12 +238,8 @@ export function RequestForm({
       {/* Item Section */}
       <div className="space-y-4 pt-2">
         <div className="border-b border-hairline pb-2">
-          <h2 className="font-display font-semibold text-base text-ink">
-            Item
-          </h2>
-          <p className="font-sans text-xs text-graphite">
-            Order details and return reason
-          </p>
+          <h2 className="font-display font-semibold text-base text-ink">Item</h2>
+          <p className="font-sans text-xs text-graphite">Order details and return reason</p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -320,11 +289,7 @@ export function RequestForm({
 
         {/* Reason Choice Tiles */}
         <div className="pt-1">
-          <ChoiceTileGroup
-            label="Return reason"
-            columns={2}
-            error={fieldErrors.reason}
-          >
+          <ChoiceTileGroup label="Return reason" columns={2} error={fieldErrors.reason}>
             {REASON_OPTIONS.map((opt) => (
               <ChoiceTile
                 key={opt.value}
@@ -347,12 +312,7 @@ export function RequestForm({
             Cancel
           </Button>
         </Link>
-        <Button
-          type="submit"
-          variant="primary"
-          loading={isSubmitting}
-          disabled={isSubmitting}
-        >
+        <Button type="submit" variant="primary" loading={isSubmitting} disabled={isSubmitting}>
           {mode === "create" ? "Create request" : "Save changes"}
         </Button>
       </div>

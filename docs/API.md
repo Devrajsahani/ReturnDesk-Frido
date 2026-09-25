@@ -36,20 +36,21 @@ Every error response strictly follows a uniform envelope:
 
 ### Complete Error Code Registry
 
-| HTTP | Code | Meaning |
-|---|---|---|
-| `400` | `INVALID_JSON` | The request body could not be parsed as valid JSON. |
-| `400` | `INVALID_QUERY` | One or more query string parameters failed validation. |
-| `404` | `NOT_FOUND` | The specified reference does not exist, was soft-deleted, or the path does not exist. |
-| `405` | `METHOD_NOT_ALLOWED` | An unsupported HTTP method was invoked on a recognized route. |
-| `409` | `INVALID_TRANSITION` | The requested status transition is not permitted from the request's current state (Rule 1). |
-| `409` | `DUPLICATE_LIVE_REQUEST` | An active return request already exists for this order number and SKU (Rule 3). |
-| `409` | `REQUEST_LOCKED` | Cannot edit request details because the request has already been decided (Rule 4). |
-| `409` | `REMOVAL_NOT_ALLOWED` | A request can only be removed from the desk while in `open` or `rejected` status (Rule 5). |
-| `422` | `VALIDATION_FAILED` | Well-formed JSON body failed schema validation (e.g. missing required field, unknown field, empty PATCH). |
-| `422` | `RESOLUTION_REQUIRED` | Moving to `approved` without a resolution, or with `refund` resolution without a positive refund amount (Rule 2). |
+| HTTP  | Code                     | Meaning                                                                                                                                      |
+| ----- | ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `400` | `INVALID_JSON`           | The request body could not be parsed as valid JSON.                                                                                          |
+| `400` | `INVALID_QUERY`          | One or more query string parameters failed validation.                                                                                       |
+| `404` | `NOT_FOUND`              | The specified reference does not exist, was soft-deleted, or the path does not exist.                                                        |
+| `405` | `METHOD_NOT_ALLOWED`     | An unsupported HTTP method was invoked on a recognized route.                                                                                |
+| `409` | `INVALID_TRANSITION`     | The requested status transition is not permitted from the request's current state (Rule 1).                                                  |
+| `409` | `DUPLICATE_LIVE_REQUEST` | An active return request already exists for this order number and SKU (Rule 3).                                                              |
+| `409` | `REQUEST_LOCKED`         | Cannot edit request details because the request has already been decided (Rule 4).                                                           |
+| `409` | `REMOVAL_NOT_ALLOWED`    | A request can only be removed from the desk while in `open` or `rejected` status (Rule 5).                                                   |
+| `422` | `VALIDATION_FAILED`      | Well-formed JSON body failed schema validation (e.g. missing required field, unknown field, empty PATCH).                                    |
+| `422` | `RESOLUTION_REQUIRED`    | Moving to `approved` without a resolution, or with `refund` resolution without a positive refund amount (Rule 2).                            |
 | `422` | `RESOLUTION_NOT_ALLOWED` | Supplying a refund amount for non-refund resolutions, or providing a resolution/amount when transitioning to non-approved statuses (Rule 2). |
-| `500` | `INTERNAL_ERROR` | An unexpected server error occurred. Details are logged on the server and never leaked. |
+| `500` | `INTERNAL_ERROR`         | An unexpected server error occurred. Details are logged on the server and never leaked.                                                      |
+| `503` | `SERVICE_UNAVAILABLE`    | The database is unreachable. Clients should retry after a brief delay.                                                                       |
 
 ---
 
@@ -63,15 +64,15 @@ Returns a paginated list of active return requests matching search queries and f
 
 #### Query Parameters
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `q` | `string` | — | Substring search across `reference`, `orderNumber`, `customerName`, `customerEmail`. Wildcards (`%`, `_`) are escaped. |
-| `status` | `string` | — | Filter by status (`open`, `in_review`, `approved`, `rejected`, `completed`). Comma-separated or repeatable. |
-| `reason` | `string` | — | Filter by return reason (`damaged`, `wrong_item`, `size_issue`, `not_as_described`, `changed_mind`). Comma-separated or repeatable. |
-| `sort` | `string` | `createdAt` | Column whitelist: `createdAt`, `updatedAt`, `reference`, `customerName`, `status`. |
-| `order` | `string` | `desc` | Sort direction: `asc` or `desc`. |
-| `page` | `integer` | `1` | Page number (minimum 1). |
-| `pageSize`| `integer` | `20` | Page size (1 to 100). |
+| Parameter  | Type      | Default     | Description                                                                                                                         |
+| ---------- | --------- | ----------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `q`        | `string`  | —           | Substring search across `reference`, `orderNumber`, `customerName`, `customerEmail`. Wildcards (`%`, `_`) are escaped.              |
+| `status`   | `string`  | —           | Filter by status (`open`, `in_review`, `approved`, `rejected`, `completed`). Comma-separated or repeatable.                         |
+| `reason`   | `string`  | —           | Filter by return reason (`damaged`, `wrong_item`, `size_issue`, `not_as_described`, `changed_mind`). Comma-separated or repeatable. |
+| `sort`     | `string`  | `createdAt` | Column whitelist: `createdAt`, `updatedAt`, `reference`, `customerName`, `status`.                                                  |
+| `order`    | `string`  | `desc`      | Sort direction: `asc` or `desc`.                                                                                                    |
+| `page`     | `integer` | `1`         | Page number (minimum 1).                                                                                                            |
+| `pageSize` | `integer` | `20`        | Page size (1 to 100).                                                                                                               |
 
 #### Success Response (`200 OK`)
 
@@ -128,7 +129,7 @@ Creates a new return request. The initial status is always `open`, and the uniqu
 }
 ```
 
-*Note:* `customerPhone` is optional (or null). Unrecognized keys (e.g. `reference` or `status`) are rejected with `422 VALIDATION_FAILED`.
+_Note:_ `customerPhone` is optional (or null). Unrecognized keys (e.g. `reference` or `status`) are rejected with `422 VALIDATION_FAILED`.
 
 #### Success Response (`201 Created`)
 
@@ -216,12 +217,13 @@ Moves the request through its lifecycle state machine. Operates inside a transac
 - `open` → `in_review`
 - `in_review` → `approved` or `rejected`
 - `approved` → `completed`
-- `rejected` → *none* (terminal state)
-- `completed` → *none* (terminal state)
+- `rejected` → _none_ (terminal state)
+- `completed` → _none_ (terminal state)
 
 #### Request Body Examples
 
 **Start Review:**
+
 ```json
 {
   "to": "in_review"
@@ -229,6 +231,7 @@ Moves the request through its lifecycle state machine. Operates inside a transac
 ```
 
 **Approve with Refund (requires positive amount):**
+
 ```json
 {
   "to": "approved",
@@ -238,6 +241,7 @@ Moves the request through its lifecycle state machine. Operates inside a transac
 ```
 
 **Approve with Replacement or Store Credit (must NOT have refund amount):**
+
 ```json
 {
   "to": "approved",
@@ -246,6 +250,7 @@ Moves the request through its lifecycle state machine. Operates inside a transac
 ```
 
 **Reject (must NOT have resolution or refund amount):**
+
 ```json
 {
   "to": "rejected"
@@ -253,6 +258,7 @@ Moves the request through its lifecycle state machine. Operates inside a transac
 ```
 
 **Complete:**
+
 ```json
 {
   "to": "completed"

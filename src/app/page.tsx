@@ -25,7 +25,6 @@ function DeskContent() {
   const searchParams = useSearchParams();
   const { showToast } = useToast();
 
-  // Read URL query params
   const urlQ = searchParams.get("q") ?? "";
   const urlStatus = searchParams.get("status") ?? "";
   const urlReason = searchParams.get("reason") ?? "";
@@ -34,7 +33,6 @@ function DeskContent() {
   const urlPage = parseInt(searchParams.get("page") ?? "1", 10) || 1;
   const removedParam = searchParams.get("removed");
 
-  // Local state for search input to prevent input lag
   const [searchInput, setSearchInput] = useState(urlQ);
   const [prevUrlQ, setPrevUrlQ] = useState(urlQ);
   if (prevUrlQ !== urlQ) {
@@ -44,7 +42,6 @@ function DeskContent() {
 
   const debouncedSearch = useDebouncedValue(searchInput, 300);
 
-  // Data fetching state
   const [requests, setRequests] = useState<ReturnRequestSummary[]>([]);
   const [meta, setMeta] = useState<PaginationMeta>({
     page: 1,
@@ -56,14 +53,12 @@ function DeskContent() {
   const [error, setError] = useState<string | null>(null);
   const [retryCount, setRetryCount] = useState(0);
 
-  // Handle removed parameter toast once on mount
   const removedHandledRef = useRef(false);
   useEffect(() => {
     if (removedParam && !removedHandledRef.current) {
       removedHandledRef.current = true;
-      showToast(`${removedParam} was removed from the desk.`, "warning");
+      showToast(`${removedParam} was removed from the desk.`, "success");
 
-      // Clean up ?removed from URL without full reload
       const nextParams = new URLSearchParams(searchParams.toString());
       nextParams.delete("removed");
       const nextUrl = nextParams.toString() ? `/?${nextParams.toString()}` : "/";
@@ -71,7 +66,6 @@ function DeskContent() {
     }
   }, [removedParam, searchParams, showToast, router]);
 
-  // Sync debounced search to URL query string
   useEffect(() => {
     if (debouncedSearch !== urlQ) {
       const nextParams = new URLSearchParams(searchParams.toString());
@@ -86,24 +80,10 @@ function DeskContent() {
     }
   }, [debouncedSearch, urlQ, searchParams, router]);
 
-  // Handle ?removed=RD-XXXXX confirmation toast
-  const removedRef = searchParams.get("removed");
-  useEffect(() => {
-    if (removedRef) {
-      showToast(`${removedRef} was removed from the desk.`, "success");
-      const nextParams = new URLSearchParams(searchParams.toString());
-      nextParams.delete("removed");
-      const nextUrl = nextParams.toString() ? `/?${nextParams.toString()}` : "/";
-      router.replace(nextUrl, { scroll: false });
-    }
-  }, [removedRef, searchParams, router, showToast]);
-
-  // Parse arrays from comma-separated URL params
   const selectedStatuses = urlStatus ? urlStatus.split(",").filter(Boolean) : [];
   const selectedReasons = urlReason ? urlReason.split(",").filter(Boolean) : [];
   const currentSortValue = `${urlSort}_${urlOrder}`;
 
-  // Update URL helper
   const updateUrlParams = (updates: Record<string, string | null>) => {
     setLoading(true);
     const nextParams = new URLSearchParams(searchParams.toString());
@@ -118,7 +98,6 @@ function DeskContent() {
     router.replace(nextUrl, { scroll: false });
   };
 
-  // Fetch data whenever URL params or retry changes
   useEffect(() => {
     let ignore = false;
     const controller = new AbortController();
@@ -134,10 +113,9 @@ function DeskContent() {
 
     async function executeFetch() {
       try {
-        const res = await apiFetch<ApiResponse>(
-          `/api/requests?${apiQuery.toString()}`,
-          { signal: controller.signal }
-        );
+        const res = await apiFetch<ApiResponse>(`/api/requests?${apiQuery.toString()}`, {
+          signal: controller.signal,
+        });
         if (!ignore) {
           setRequests(res.data);
           setMeta(res.meta);
@@ -169,7 +147,6 @@ function DeskContent() {
     };
   }, [urlQ, urlStatus, urlReason, urlSort, urlOrder, urlPage, retryCount]);
 
-  // Handlers
   const handleStatusChange = (newStatuses: string[]) => {
     updateUrlParams({
       status: newStatuses.length > 0 ? newStatuses.join(",") : null,
@@ -215,19 +192,13 @@ function DeskContent() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6">
-      {/* Header Line: Requests + Total Count */}
       <div className="flex items-baseline justify-between">
-        <h1 className="font-display font-semibold text-2xl text-ink">
-          Requests
-        </h1>
+        <h1 className="font-display font-semibold text-2xl text-ink">Requests</h1>
         {!loading && !error && (
-          <span className="text-xs text-graphite font-sans tabular-nums">
-            {meta.total} total
-          </span>
+          <span className="text-xs text-graphite font-sans tabular-nums">{meta.total} total</span>
         )}
       </div>
 
-      {/* Filter Controls (Search, Sort, Status, Reason) */}
       <DeskFilters
         searchQuery={searchInput}
         onSearchChange={setSearchInput}
@@ -240,7 +211,6 @@ function DeskContent() {
         onClearAll={handleClearFilters}
       />
 
-      {/* Error State Banner */}
       {error && (
         <Banner
           variant="danger"
@@ -251,10 +221,8 @@ function DeskContent() {
         />
       )}
 
-      {/* Loading Skeleton */}
       {loading && <DeskSkeleton />}
 
-      {/* Empty State */}
       {!loading && !error && requests.length === 0 && (
         <EmptyState
           message="No requests match these filters."
@@ -265,22 +233,18 @@ function DeskContent() {
         />
       )}
 
-      {/* Data Results: Table for Desktop (>= 640px), Cards for Mobile (< 640px) */}
       {!loading && !error && requests.length > 0 && (
         <>
-          {/* Desktop Table View */}
           <div className="hidden sm:block">
             <DeskTable requests={requests} />
           </div>
 
-          {/* Mobile Cards View (Tier 3 Tiles) */}
           <div className="sm:hidden space-y-3">
             {requests.map((req) => (
               <DeskCard key={req.reference} request={req} />
             ))}
           </div>
 
-          {/* Pagination Footer */}
           <DeskPagination
             page={meta.page}
             pageSize={meta.pageSize}

@@ -88,8 +88,7 @@ export default function EditRequestPage({ params }: PageProps) {
     );
   }
 
-  const isDecided = ["approved", "rejected", "completed"].includes(request.status);
-  const isLocked = isDecided || !request.allowedActions?.canEdit;
+  const isLocked = !request.allowedActions?.canEdit;
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8 sm:px-6">
@@ -113,7 +112,11 @@ export default function EditRequestPage({ params }: PageProps) {
           <Banner
             variant="warning"
             title="Request Locked"
-            message={`Details are locked because this request was ${request.status} on ${formatShortDate(request.decidedAt)}.`}
+            message={
+              request.decidedAt
+                ? `Details are locked because this request was ${request.status} on ${formatShortDate(request.decidedAt)}.`
+                : `Details are locked because this request is ${request.status}.`
+            }
             actionLabel="View request"
             onAction={() => router.push(`/requests/${reference}`)}
           />

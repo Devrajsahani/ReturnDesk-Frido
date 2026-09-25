@@ -15,7 +15,7 @@ export function created<T>(data: T, location: string): NextResponse<{ data: T }>
       headers: {
         Location: location,
       },
-    }
+    },
   );
 }
 
@@ -31,7 +31,7 @@ export function methodNotAllowed(): NextResponse<ErrorEnvelope> {
         message: "Method not allowed",
       },
     },
-    { status: 405 }
+    { status: 405 },
   );
 }
 
@@ -43,29 +43,28 @@ export async function parseJsonBody(req: Request): Promise<unknown> {
   }
 }
 
+function toFieldErrors(issues: z.ZodIssue[]): Record<string, string> {
+  const fields: Record<string, string> = {};
+  for (const issue of issues) {
+    const field = issue.path.join(".") || "_root";
+    if (!fields[field]) {
+      fields[field] = issue.message;
+    }
+  }
+  return fields;
+}
+
 export function parseBody<T>(schema: z.ZodType<T>, value: unknown): T {
   const result = schema.safeParse(value);
   if (!result.success) {
-    const fields: Record<string, string> = {};
-    for (const issue of result.error.issues) {
-      const field = issue.path.join(".") || "_root";
-      if (!fields[field]) {
-        fields[field] = issue.message;
-      }
-    }
-    throw new ApiError(
-      422,
-      "VALIDATION_FAILED",
-      "The request body failed validation checks",
-      { fields }
-    );
+    throw new ApiError(422, "VALIDATION_FAILED", "The request body failed validation checks", {
+      fields: toFieldErrors(result.error.issues),
+    });
   }
   return result.data;
 }
 
-function searchParamsToObject(
-  searchParams: URLSearchParams
-): Record<string, string | string[]> {
+function searchParamsToObject(searchParams: URLSearchParams): Record<string, string | string[]> {
   const obj: Record<string, string | string[]> = {};
   for (const key of searchParams.keys()) {
     const values = searchParams.getAll(key);
@@ -74,36 +73,38 @@ function searchParamsToObject(
   return obj;
 }
 
-export function parseQuery<T>(
-  schema: z.ZodType<T>,
-  searchParams: URLSearchParams | unknown
-): T {
+export function parseQuery<T>(schema: z.ZodType<T>, searchParams: URLSearchParams | unknown): T {
   const raw =
-    searchParams instanceof URLSearchParams
-      ? searchParamsToObject(searchParams)
-      : searchParams;
+    searchParams instanceof URLSearchParams ? searchParamsToObject(searchParams) : searchParams;
 
   const result = schema.safeParse(raw);
   if (!result.success) {
-    const fields: Record<string, string> = {};
-    for (const issue of result.error.issues) {
-      const field = issue.path.join(".") || "_root";
-      if (!fields[field]) {
-        fields[field] = issue.message;
-      }
-    }
-    throw new ApiError(
-      400,
-      "INVALID_QUERY",
-      "The query parameters failed validation checks",
-      { fields }
-    );
+    throw new ApiError(400, "INVALID_QUERY", "The query parameters failed validation checks", {
+      fields: toFieldErrors(result.error.issues),
+    });
   }
   return result.data;
 }
 
+const DB_UNAVAILABLE_CODES = new Set([
+  "ECONNRESET",
+  "ECONNREFUSED",
+  "ETIMEDOUT",
+  "ENOTFOUND",
+  "57P01",
+  "53300",
+]);
+
+function isDatabaseUnavailableError(err: unknown): boolean {
+  if (typeof err === "object" && err !== null && "code" in err) {
+    const code = String((err as { code?: unknown }).code);
+    return DB_UNAVAILABLE_CODES.has(code);
+  }
+  return false;
+}
+
 export function withErrorHandling<Args extends unknown[]>(
-  handler: (...args: Args) => Promise<Response> | Response
+  handler: (...args: Args) => Promise<Response> | Response,
 ): (...args: Args) => Promise<Response> {
   return async (...args: Args) => {
     try {
@@ -118,7 +119,20 @@ export function withErrorHandling<Args extends unknown[]>(
               ...(err.details !== undefined ? { details: err.details } : {}),
             },
           },
-          { status: err.status }
+          { status: err.status },
+        );
+      }
+
+      if (isDatabaseUnavailableError(err)) {
+        console.error("Database connection error:", err);
+        return NextResponse.json(
+          {
+            error: {
+              code: "SERVICE_UNAVAILABLE",
+              message: "The database is unreachable. Try again in a moment.",
+            },
+          },
+          { status: 503 },
         );
       }
 
@@ -130,7 +144,7 @@ export function withErrorHandling<Args extends unknown[]>(
             message: "An internal server error occurred",
           },
         },
-        { status: 500 }
+        { status: 500 },
       );
     }
   };
