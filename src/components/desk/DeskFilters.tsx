@@ -41,6 +41,10 @@ export interface DeskFiltersProps {
   sortValue: string;
   onSortChange: (sortVal: string) => void;
   onClearAll: () => void;
+  facets?: {
+    status: Record<string, number>;
+    reason: Record<string, number>;
+  };
 }
 
 export function DeskFilters({
@@ -53,6 +57,7 @@ export function DeskFilters({
   sortValue,
   onSortChange,
   onClearAll,
+  facets,
 }: DeskFiltersProps) {
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
@@ -161,6 +166,7 @@ export function DeskFilters({
               key={opt.value}
               label={opt.label}
               selected={selectedStatuses.includes(opt.value)}
+              count={facets?.status?.[opt.value]}
               onClick={() => handleToggleStatus(opt.value)}
             />
           ))}
@@ -179,6 +185,7 @@ export function DeskFilters({
               key={opt.value}
               label={opt.label}
               selected={selectedReasons.includes(opt.value)}
+              count={facets?.reason?.[opt.value]}
               onClick={() => handleToggleReason(opt.value)}
             />
           ))}

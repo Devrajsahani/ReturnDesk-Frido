@@ -24,13 +24,15 @@ export function FilterChip({
     ? "bg-ink text-paper border-ink"
     : "bg-paper text-ink border-rule hover:border-ink";
 
+  const countZeroClass = count === 0 ? "opacity-50" : "";
+
   return (
     <button
       type="button"
       aria-pressed={selected}
       disabled={disabled}
       onClick={onClick}
-      className={`${baseClasses} ${stateClasses} ${className}`}
+      className={`${baseClasses} ${stateClasses} ${countZeroClass} ${className}`}
     >
       <span>{label}</span>
       {count !== undefined && (

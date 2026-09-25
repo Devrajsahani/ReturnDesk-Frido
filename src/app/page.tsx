@@ -209,6 +209,7 @@ function DeskContent() {
         sortValue={currentSortValue}
         onSortChange={handleSortChange}
         onClearAll={handleClearFilters}
+        facets={meta.facets}
       />
 
       {error && (

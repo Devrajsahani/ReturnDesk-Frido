@@ -104,6 +104,35 @@ Each item in `data` looks like this:
 }
 ```
 
+The response includes `meta` with pagination and faceted counts:
+
+```json
+{
+  "page": 1,
+  "pageSize": 20,
+  "total": 34,
+  "totalPages": 2,
+  "facets": {
+    "status": {
+      "open": 8,
+      "in_review": 7,
+      "approved": 8,
+      "rejected": 6,
+      "completed": 5
+    },
+    "reason": {
+      "damaged": 9,
+      "wrong_item": 7,
+      "size_issue": 8,
+      "not_as_described": 6,
+      "changed_mind": 4
+    }
+  }
+}
+```
+
+Each dimension's counts ignore its own filter but respect search and the other filter (so you can see what selecting a chip would give).
+
 ### `POST /api/requests`
 
 ```json

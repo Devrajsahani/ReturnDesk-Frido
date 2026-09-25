@@ -1,7 +1,13 @@
 import "server-only";
 import { type PoolClient } from "pg";
 import { query } from "../db";
-import type { RequestResolution, RequestStatus, ReturnReason } from "../domain/constants";
+import {
+  REASONS,
+  STATUSES,
+  type RequestResolution,
+  type RequestStatus,
+  type ReturnReason,
+} from "../domain/constants";
 import type {
   CreateRequestInput,
   ListQueryInput,
@@ -46,11 +52,17 @@ export interface ReturnRequestSummary {
   decidedAt: string | null;
 }
 
+export interface RequestFacets {
+  status: Record<RequestStatus, number>;
+  reason: Record<ReturnReason, number>;
+}
+
 export interface PaginationMeta {
   page: number;
   pageSize: number;
   total: number;
   totalPages: number;
+  facets?: RequestFacets;
 }
 
 const SORT_COLUMN_MAP: Record<SortField, string> = {
@@ -173,10 +185,50 @@ export async function findRequests(
     LIMIT $${limitIdx} OFFSET $${offsetIdx}
   `;
 
-  const [countRows, rows] = await Promise.all([
+  const statusWhere = buildWhereClause({
+    q: input.q,
+    reason: input.reason,
+  });
+  const statusFacetSql = `
+    SELECT status, count(*)::int as count
+    FROM return_requests
+    ${statusWhere.whereSql}
+    GROUP BY status
+  `;
+
+  const reasonWhere = buildWhereClause({
+    q: input.q,
+    status: input.status,
+  });
+  const reasonFacetSql = `
+    SELECT reason, count(*)::int as count
+    FROM return_requests
+    ${reasonWhere.whereSql}
+    GROUP BY reason
+  `;
+
+  const [countRows, rows, statusCountRows, reasonCountRows] = await Promise.all([
     query<{ total: number }>(countSql, params),
     query<RequestRow>(pageSql, pageParams),
+    query<{ status: RequestStatus; count: number }>(statusFacetSql, statusWhere.params),
+    query<{ reason: ReturnReason; count: number }>(reasonFacetSql, reasonWhere.params),
   ]);
+
+  const statusCounts = Object.fromEntries(STATUSES.map((s) => [s, 0])) as Record<
+    RequestStatus,
+    number
+  >;
+  for (const row of statusCountRows) {
+    statusCounts[row.status] = Number(row.count);
+  }
+
+  const reasonCounts = Object.fromEntries(REASONS.map((r) => [r, 0])) as Record<
+    ReturnReason,
+    number
+  >;
+  for (const row of reasonCountRows) {
+    reasonCounts[row.reason] = Number(row.count);
+  }
 
   const total = countRows[0]?.total ?? 0;
   const totalPages = Math.ceil(total / input.pageSize);
@@ -189,6 +241,10 @@ export async function findRequests(
       pageSize: input.pageSize,
       total,
       totalPages,
+      facets: {
+        status: statusCounts,
+        reason: reasonCounts,
+      },
     },
   };
 }
