@@ -169,6 +169,7 @@ Where the brief left something open, I made these choices:
 - **Integration tests.** Unit tests cover the lifecycle rules and every input validation rule (`npm test`), and run in GitHub Actions on each push. The HTTP behaviour and database constraints were checked with the curl examples in `docs/API.md`. Next step is integration tests against a separate database, one group per rule, running each rule end to end.
 - **Search at scale.** `ILIKE '%…%'` can't use a normal index, which is fine at this size. With a lot of data, I'd add `pg_trgm` indexes and measure with `EXPLAIN ANALYZE`. Pagination uses `OFFSET`, which I'd switch to keyset pagination for very deep pages.
 - **A history of status changes.** The app records when a request was decided, but not a full log of who changed what and when. An append-only events table shown next to the notes would be the next step.
+- **Order lookup.** In a real deployment the agent would type an order number and the customer and item details would be filled in from the store's order system (an API call), instead of being typed. The brief has no order system, so ReturnDesk stores what the agent enters.
 
 ---
 

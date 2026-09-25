@@ -273,29 +273,25 @@ export function RequestForm({ mode, reference, etag, initialValues }: RequestFor
           />
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="sm:col-span-2">
-            <Input
-              label="Item name"
-              required
-              placeholder="e.g. Ergonomic Seat Cushion"
-              value={itemName}
-              onChange={(e) => setItemName(e.target.value)}
-              error={fieldErrors.itemName}
-            />
-          </div>
+        <Input
+          label="Item name"
+          required
+          placeholder="e.g. Ergonomic Seat Cushion"
+          value={itemName}
+          onChange={(e) => setItemName(e.target.value)}
+          error={fieldErrors.itemName}
+        />
 
-          <div>
-            <Input
-              label="Quantity"
-              type="number"
-              min={1}
-              required
-              value={quantity}
-              onChange={(e) => setQuantity(e.target.value)}
-              error={fieldErrors.quantity}
-            />
-          </div>
+        <div className="w-[120px]">
+          <Input
+            label="Quantity"
+            type="number"
+            min={1}
+            required
+            value={quantity}
+            onChange={(e) => setQuantity(e.target.value)}
+            error={fieldErrors.quantity}
+          />
         </div>
 
         {/* Reason Choice Tiles */}
